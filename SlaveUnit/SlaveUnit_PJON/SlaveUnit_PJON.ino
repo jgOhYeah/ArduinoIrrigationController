@@ -1,11 +1,9 @@
 #include <EEPROM.h>
 #include <ButtonOnPress.h>
-#include <LongDistanceSerial.h>
 #include <avr/wdt.h>
 
 #include "defines.h"
 
-LongDistanceSerial serialCom(&Serial,1200,serialEnablePin,startChar,endChar,0);
 ButtonOnPress button(buttonPin,minOffTime,buttonPressedState,pullupsEnabled);
 void setup() {
   serialCom.begin();

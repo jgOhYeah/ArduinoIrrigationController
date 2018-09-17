@@ -40,7 +40,10 @@ void menuScreenButtons() {
       changeScreen();
     //Reset all
     } else if (cursorPos == 6) {
-      //serialCom.sendCommand(allDevices,reset, reset, enableLineWait);
+      char charsToSend[1];
+      charsToSend[0] = reset;
+      bus.send(PJON_BROADCAST,charsToSend,1); //Send the command for everything to reset.
+      serialDelay(replyDelay); //Wait long enough to hopefully send the message, otherwise too bad.
       //Set the watchdog to timeout and reset 
       wdt_enable(WDTO_15MS);
       while(true);
@@ -75,12 +78,13 @@ void errorScreenButtons() {
     lcd.setCursor(scrollPos,0);
   }
   if(selectButton.checkButton()) {
-    //stuff
+    //Go to main screen
     //Serial.println(F("Select button pressed"));
     currentScreen = mainScreen;
     changeScreen();
   }
 }
+//Handler for the buttons on the main screen.
 void mainScreenButtons() {
   if(leftButton.checkButton()) {
     //stuff
@@ -126,7 +130,7 @@ void mainScreenButtons() {
       currentScreen = menuScreen;
       changeScreen();
       //Master Setting
-    } else if (cursorPos == numberOfDevices) {
+    } else if (cursorPos == numberOfDevices) { //On the change all bays at once button
       byte masterStatus;
       //Serial.println("All the same: " + allTheSame);
       if(allTheSame) {
@@ -139,48 +143,46 @@ void mainScreenButtons() {
       } else {
         masterStatus = bayShut;
       }
+      char charsToSend[2];
+      charsToSend[0] = setStatus;
+      charsToSend[1] = masterStatus; //Prepare the data - needs to be written at runtime so putting in {} in one line does not seem to work.
+      sendToAll(charsToSend,2);
       //byte error = serialSuccess; //serialCom.sendCommandWithCallbacks(allDevices,masterStatus,overwriteStatus, enableLineWait, callbackTimeout);
-      if(false) {
-        //createErrorMessage(error,false,NULL);
-      } else {
-        //if(!sendBayCommand(allBays,masterStatus)) return;
-        lcd.setCursor(0,1);
-        for(byte i = 0; i < numberOfDevices; i++) {
-          bayStatus[i] = masterStatus;
-          lcd.write(byte(bayOptions[masterStatus]));
-        }
-        lcd.setCursor(cursorPos,1);
-        allTheSame = true;
-        //Else if the bay is connected and online, increment through the options.
-      //} else if (bayStatus[cursorPos] != bayNotPresent) {
+      //if(!sendBayCommand(allBays,masterStatus)) return;
+      lcd.setCursor(0,1);
+      for(byte i = 0; i < numberOfDevices; i++) {
+        bayStatus[i] = masterStatus;
+        lcd.write(byte(bayOptions[masterStatus]));
       }
-    } else {
+      lcd.setCursor(cursorPos,1);
+      allTheSame = true;
+    } else { //Change the state of an individual bay.
       if(bayStatus[cursorPos] >= bayOpen) {
         bayStatus[cursorPos] = bayShut;
       } else {
         bayStatus[cursorPos]++;
       }
+      char charsToSend[2];
+      charsToSend[0] = setStatus;
+      charsToSend[1] = bayStatus[cursorPos]; //Prepare the data
+      bus.send(cursorPos+firstSlaveAddress,charsToSend,2); //Send the data
       //Send the command to the bay
       //if(!sendBayCommand(cursorPos,bayStatus[cursorPos])) return;
       //byte error = serialSuccess; //serialCom.sendCommandWithCallbacks(cursorPos,bayStatus[cursorPos],overwriteStatus, enableLineWait, callbackTimeout);
-      if(false) {
-        //createErrorMessage(error,false, NULL);
-      } else {
-        //Write the updated status to the lcd
-        lcd.write(byte(bayOptions[bayStatus[cursorPos]]));
-        lcd.setCursor(cursorPos,1);
-        //Check if still all the same
-        allTheSame = true;
-        if(bayStatus[0] == bayUnknown || bayStatus[0] == bayNotPresent) {
+      //Update the lcd.
+      lcd.write(byte(bayOptions[bayStatus[cursorPos]]));
+      lcd.setCursor(cursorPos,1);
+      //Check if still all the same
+      allTheSame = true;
+      if(bayStatus[0] == bayUnknown || bayStatus[0] == bayNotPresent) {
+        allTheSame = false;
+      }
+      for(byte i = 0; i < numberOfDevices; i++) {
+        if(bayStatus[i] != bayStatus[0]) {
           allTheSame = false;
         }
-        for(byte i = 0; i < numberOfDevices; i++) {
-          if(bayStatus[i] != bayStatus[0]) {
-            allTheSame = false;
-          }
-        }
-        lcd.setCursor(cursorPos,1);
       }
+      lcd.setCursor(cursorPos,1);
     }
   }
 }

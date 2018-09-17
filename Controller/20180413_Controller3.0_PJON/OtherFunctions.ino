@@ -44,4 +44,89 @@ void serialDelay(unsigned long waitTime) {
     bus.receive();
   }
 }
-
+//Function that handles and displays errors. Either called by PJON or manually
+void errorHandler(uint8_t code, uint16_t data, void *custom_pointer) {
+  digitalWrite(LED_BUILTIN,HIGH);
+  Serial.println();
+  Serial.print("Error: ");
+  Serial.print(code);
+  Serial.print("\tData: ");
+  Serial.println(data);
+  //Put the time into the message
+  runningTime(completeErrorMsg);
+  strcat(completeErrorMsg," ");
+  switch(code) {
+    case PJON_CONNECTION_LOST: {
+      bayStatus[byte(bus.packets[data].content[0])-firstSlaveAddress] = bayNotPresent; //Update the array of bay statuses to be disconnected.
+      //Build the error message
+      //Copy "all" to the string.
+      strcat_P(completeErrorMsg, bay);
+      //Check to see if all devices have been affected. If so, replace numbers with "All"
+      bool allDisconnected = true;
+      for(byte i = 0; i < numberOfDevices; i++) {
+        if(bayStatus[i] != bayNotPresent) {
+          allDisconnected = false;
+          break; //Speed processing up a bit possibly
+        }
+      }
+      if(allDisconnected) {
+        //Copy "all" to the string.
+        strcat_P(completeErrorMsg, all);
+      } else {
+        for(byte i = 0; i < numberOfDevices; i++) {
+          if(bayStatus[i] == bayNotPresent) {
+            char charBuffer[4]; //Should only need three, but just in case I decide to add more than 10 bay outlets in future.
+            itoa(i + 1,charBuffer,10);
+            strcat(charBuffer,",");
+            strcat(completeErrorMsg,charBuffer);
+          }
+        }
+      }
+      //Add the not connected message.
+      strcat_P(completeErrorMsg,noReply);
+      //0000:00 Bays 1,2,3,4,5,6,7, Disconnected
+      break;
+    }
+    case PJON_PACKETS_BUFFER_FULL: { //If the master is trying to send or recieve more data at a higher rate than the bus is capable. Should not be an issue once set up.
+      strcat_P(completeErrorMsg, bufferTooLong);
+      strcat_P(completeErrorMsg, lengthString);
+      char charBuffer[5]; //Just to be sure there is enough space (buffer would have to be bigger than total ram in an Atmega328p to overflow >9999 bytes)
+      itoa(data,charBuffer,10);
+      strcat(completeErrorMsg,charBuffer);
+      break;
+    }
+    case PJON_CONTENT_TOO_LONG: {
+      strcat_P(completeErrorMsg, contentTooLong);
+      strcat_P(completeErrorMsg, lengthString);
+      char charBuffer[5]; //Just to be sure there is enough space (buffer would have to be bigger than total ram in an Atmega328p to overflow >9999 bytes)
+      itoa(data,charBuffer,10);
+      strcat(completeErrorMsg,charBuffer);
+      break;
+    }
+    case invalidAddress: {
+      strcat_P(completeErrorMsg, invalidAddressString);
+      char charBuffer[5];
+      itoa(data,charBuffer,10);
+      strcat(completeErrorMsg,charBuffer);
+      break;
+    }
+    case packetError: {
+      strcat_P(completeErrorMsg, packetErrorString);
+      char charBuffer[5];
+      itoa(data,charBuffer,10);
+      strcat(completeErrorMsg,charBuffer);
+      break;
+    }
+    default: {
+      strcat_P(completeErrorMsg, unknownError);
+      char charBuffer[5]; //Just to be sure there is enough space (buffer would have to be bigger than total ram in an Atmega328p to overflow >9999 bytes)
+      itoa(data,charBuffer,10);
+      strcat(completeErrorMsg,charBuffer);
+      //UnkownErrorMessage
+    }
+  }
+  //Swap to the error screen
+  currentScreen = errorScreen;
+  changeScreen();
+  digitalWrite(LED_BUILTIN,LOW);
+}

@@ -15,20 +15,15 @@ const char softwareVersion[] PROGMEM = " V3.0";
 #define lastSlaveAddress firstSlaveAddress + numberOfDevices - 1
 
 //Commands and states
-#define reportStatus "s"
-#define reset "x"
+#define reportStatus 's' //String so can be sent as a command by istelf
+#define reset 'x'
 #define overwriteStatus 'w'
-#define readStatus "r"
+#define setStatus 'r'
 #define bayUnknown 0
 #define bayShut 1
 #define bayHalf 2
 #define bayOpen 3
 #define bayNotPresent 4
-
-//Start and end characters
-#define startChar '~' //Something weird and not often used so cannot ba an accident
-#define endChar 10 //Newline char
-
 
 //Buttons
 #define buttonRight 6
@@ -39,7 +34,7 @@ const char softwareVersion[] PROGMEM = " V3.0";
 #define pullupsEnabled false //Enable the internal pullup resistors
 
 #define startDelay 2000
-#define replyDelay 2000
+#define replyDelay 3000
 
 //Error codes
 #define invalidAddress 50
