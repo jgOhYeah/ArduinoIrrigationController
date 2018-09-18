@@ -53,9 +53,18 @@ void setupSerial() {
   bus.set_receiver(recieveData);
   char charsToSend[1]; //Convert the command into a 1 dimensional array to keep the compiler happy.
   charsToSend[0] = reportStatus;
+  Serial.print(F("Byte being sent in array: "));
+  Serial.print(charsToSend[0]);
+  Serial.print(F("\t which is: "));
+  Serial.write(reportStatus);
+  Serial.println();
   sendToAll(charsToSend,1);
 }
 void sendToAll(char *data,byte length) {
+  Serial.println(F("About to send a msg to all devices. It is: "));
+  Serial.print(data[0]);
+  Serial.print(F("\tAt length: "));
+  Serial.println(length);
   for(byte i = firstSlaveAddress; i <= lastSlaveAddress; i++) {
     bayStatus[i - firstSlaveAddress] = bayUnknown;
     bus.send(i, data, length);
