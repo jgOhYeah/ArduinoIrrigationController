@@ -20,16 +20,19 @@ The `*` (Astrixes) are used as buttons and can be clicked on by using the left a
 Bay Number -> 1234567A   hh:mm
 Bay Status -> ???????*   *More
 ```
+![Main Screen](Pictures/Screen/MainScreen.png)
 #### More Options Screen
 ```
 *Home *Reset All
 *Last Error Msg
 ```
+![More Options Screen](Pictures/Screen/MenuScreen.png)
 #### Error Message Screen
 ```
 *Home ERRORhh:mm
 <Error message here. It can be scrolled as well!>
 ```
+![Error Screen](Pictures/Screen/ErrorScreenGeneric.png)
 ## Communication
 This system uses the PJON protocol using ThroughSerial over rs485. This protocol automatically handles error checking and making sure that packets go to where they need to go and are recieved. [Click Here](https://www.pjon.org/) to go to the PJON website.
 
