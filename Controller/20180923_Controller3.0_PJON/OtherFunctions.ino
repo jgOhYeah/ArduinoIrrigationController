@@ -1,8 +1,8 @@
-int freeRam () {
+/*int freeRam () {
   extern int __heap_start, *__brkval;
   int v;
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
-}
+}*/
 
 void runningTime(char * timeSinceStart) {
   unsigned long milliSeconds = millis();
@@ -35,7 +35,6 @@ void updateTime() {
     nextTime = milliSeconds + clockUpdateSpeed;
     drawClock();
     lcd.setCursor(cursorPos,cursorRow);
-    Serial.println(freeRam());
   }
 }
 void serialDelay(unsigned long waitTime) {
@@ -48,11 +47,7 @@ void serialDelay(unsigned long waitTime) {
 //Function that handles and displays errors. Either called by PJON or manually
 void errorHandler(uint8_t code, uint16_t data, void *custom_pointer) {
   digitalWrite(LED_BUILTIN,HIGH);
-  Serial.println();
-  Serial.print("Error: ");
-  Serial.print(code);
-  Serial.print("\tData: ");
-  Serial.println(data);
+  currentScreen = errorScreen;//Freeze the main screen if active
   //Put the time into the message
   runningTime(completeErrorMsg);
   strcat(completeErrorMsg," ");
@@ -64,7 +59,7 @@ void errorHandler(uint8_t code, uint16_t data, void *custom_pointer) {
       strcat_P(completeErrorMsg, bay);
       //Check to see if all devices have been affected. If so, replace numbers with "All"
       bool allDisconnected = true;
-      for(byte i = 0; i < numberOfDevices; i++) {
+      for(byte i = firstDevice; i < numberOfDevices; i++) {
         if(bayStatus[i] != bayNotPresent) {
           allDisconnected = false;
           break; //Speed processing up a bit possibly
@@ -74,7 +69,7 @@ void errorHandler(uint8_t code, uint16_t data, void *custom_pointer) {
         //Copy "all" to the string.
         strcat_P(completeErrorMsg, all);
       } else {
-        for(byte i = 0; i < numberOfDevices; i++) {
+        for(byte i = firstDevice; i < numberOfDevices; i++) {
           if(bayStatus[i] == bayNotPresent) {
             char charBuffer[4]; //Should only need three, but just in case I decide to add more than 10 bay outlets in future.
             itoa(i + 1,charBuffer,10);
@@ -127,7 +122,6 @@ void errorHandler(uint8_t code, uint16_t data, void *custom_pointer) {
     }
   }
   //Swap to the error screen
-  currentScreen = errorScreen;
   changeScreen();
   digitalWrite(LED_BUILTIN,LOW);
 }

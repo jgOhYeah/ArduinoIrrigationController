@@ -30,7 +30,9 @@ void recieveData (uint8_t *payload, uint16_t length, const PJON_Packet_Info &pac
       //Update the array of bay statuses.
       bayStatus[byte(senderId)-firstSlaveAddress] = payload[1];
       if(currentScreen == mainScreen) {
-        changeScreen(); //Refresh the screen if nessecary
+        //changeScreen(); //Refresh the screen if nessecary
+        drawBayStates();
+        lcd.setCursor(cursorPos,cursorRow);
       }
       break;
     }
@@ -47,38 +49,15 @@ void setupSerial() {
   //Set configuration to send packet requesting asynchronous acknowledgement response
   bus.set_synchronous_acknowledge(false);
   bus.set_asynchronous_acknowledge(true);
+  bus.set_communication_mode(PJON_HALF_DUPLEX);
   bus.strategy.set_enable_RS485_pin(serialEnablePin);
   bus.set_error(errorHandler);
   bus.begin();
   bus.set_receiver(recieveData);
-  Serial.println(freeRam());
-  char charsToSend[2]; //Convert the command into a 1 dimensional array to keep the compiler happy.
-  charsToSend[0] = 's';
-  charsToSend[1] = 0;
-  Serial.println(freeRam());
-  Serial.print("Message: ");
-  Serial.println(charsToSend);
-  Serial.println("FirstChar in different forms");
-  char firstChar = charsToSend[0];
-  Serial.print("\tArray as char: ");
-  Serial.println(charsToSend[0]);
-  Serial.print("\tChar as char: ");
-  Serial.println(firstChar);
-  Serial.print("\tArray as byte: ");
-  Serial.println(byte(charsToSend[0]));
-  Serial.print("\tChar as byte: ");
-  Serial.println(byte(firstChar));
-  Serial.println(freeRam());
-  sendToAll(charsToSend,1);
-  Serial.println(freeRam());
+  sendToAll(reportStatus,1);
 }
-void sendToAll(char data[],byte length) {
-  Serial.print(F("About to send a msg to all devices. It is: "));
-  Serial.print(byte(data[0]));
-  Serial.print(F("\tAt length: "));
-  Serial.println(length);
+void sendToAll(const char * data,byte length) {
   for(byte i = firstSlaveAddress; i <= lastSlaveAddress; i++) {
-    bayStatus[i - firstSlaveAddress] = bayUnknown;
     bus.send(i, data, length);
     bus.update();
     bus.receive();
