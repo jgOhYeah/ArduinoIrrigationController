@@ -31,7 +31,7 @@ const unsigned int halfDownTime = (100-halfwayPos) / (downTravelSpeed / 100);
 unsigned long startDelayTime = 0;
 unsigned long callbackTime = 0;
 unsigned long timeAtDown = 0;
-unsigned long wasUpTime = 0;
+unsigned long timeAtOpen = 0;
 #define bayNothing 0
 #define bayHoming 1
 #define bayToHalf 2

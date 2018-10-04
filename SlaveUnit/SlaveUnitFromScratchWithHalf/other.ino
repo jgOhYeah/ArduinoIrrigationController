@@ -15,13 +15,16 @@ void updateBay(char newStatus) {
       digitalWrite(upLed,LOW);
       callbackOperation = bayHoming;
       if(bayStatus == bayShut) {
-        unsigned long timeShut = millis() - timeAtDown;
-        unsigned int timeOpen = millis() - timeAtOpen; //TODO: WORK NEEDS TO BE DONE HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if(timeShut >= downTravelSpeed) { //Know that the bay must be at the bottom
-          callbackTime = 0;
+        unsigned long timeShut = millis() - timeAtDown; //TODO: Stuff
+        //If was definitely open, then if the time spent shutting is less than half open time.
+        if(millis() - timeAtOpen >= upTravelSpeed) { //Before we started stuffing various settings up, was the outlet previously at the top?
+          
         } else {
-          callbackTime = downTravelSpeed - timeShut; //Delay only the minimum required to garuntee that it is shut
-        }
+          if(timeShut >= downTravelSpeed) { //Know that the bay must be at the bottom
+            callbackTime = 0;
+          } else {
+            callbackTime = downTravelSpeed - timeShut; //Delay only the minimum required to garuntee that it is shut
+          }
       } else {
         callbackTime = downTravelSpeed; //We can't be sure about the position of much else, so do the full amount just to be safe.
       }
@@ -32,7 +35,7 @@ void updateBay(char newStatus) {
       digitalWrite(downLed,LOW);
       digitalWrite(halfLed,LOW);
       digitalWrite(upLed,HIGH);
-      wasDownTime = millis();
+      timeAtOpen = millis();
       break;
     default:
       digitalWrite(downLed,HIGH);
