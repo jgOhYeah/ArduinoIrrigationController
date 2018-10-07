@@ -11,6 +11,7 @@ public:
 	void begin();
 	bool checkButton();
 	bool isPressed();
+	bool longPress(unsigned long timePressed);
 private:
 	byte pin_;
 	unsigned int minOffTime_;
@@ -19,6 +20,7 @@ private:
 	//Moved from being static variables in CheckButton in sButtonOnPress.cpp to work with multiple instances
 	unsigned long nextOffTime = 0;
 	bool currentlyPressed = false;
+	unsigned long pressTime = 0;
 };
 
 

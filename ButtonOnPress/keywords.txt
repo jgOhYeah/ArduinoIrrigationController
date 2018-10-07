@@ -3,3 +3,4 @@ ButtonOnPress	KEYWORD1
 begin	KEYWORD2
 checkButton	KEYWORD2
 isPressed	KEYWORD2
+longPress	KEYWORD2

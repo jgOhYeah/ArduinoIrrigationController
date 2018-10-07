@@ -21,6 +21,7 @@ bool ButtonOnPress::checkButton() {
 		if (!currentlyPressed) {
 			currentlyPressed = true;
 			nextOffTime = millis() + minOffTime_;
+			pressTime = millis();
 			return true;
 		}
 	} else if(millis() > nextOffTime){
@@ -31,6 +32,14 @@ bool ButtonOnPress::checkButton() {
 }
 bool ButtonOnPress::isPressed() {
 	if (digitalRead(pin_) == onState_) {
+		return true;
+	} else {
+		return false;
+	}
+}
+//Returns true if the button is currently pressed and has been pressed for at least a ceratin time.
+bool ButtonOnPress::longPress(unsigned long timePressed) {
+	if (millis() - pressTime >= timePressed && isPressed()) {
 		return true;
 	} else {
 		return false;
