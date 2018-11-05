@@ -85,3 +85,23 @@ void checkCallbacks() {
     }
   }
 }
+#error "Stuff to do to flash leds here!"
+void flashLeds(byte mode) {
+  static unsigned long startTime = 0;
+  static byte position = 0; //Position in sequence
+  
+  bool timeThisRound = false;
+  if(millis() - startTime >= ledFlashSpeed) {
+    startTime = millis();
+    timeThis round = true;
+  }
+  switch(mode) {
+    case ledsOn:
+      ALL_LEDS(HIGH);
+      break;
+    case ledsOff:
+      ALL_LEDS(LOW);
+      break;
+  }
+}
+

@@ -10,12 +10,12 @@ PJON<ThroughSerial> bus(bus_id, 44); //44 is the default id and will be overwrit
 ButtonOnPress button(buttonPin,150,LOW,false);
 #define mainFile __FILE__
 void setup() {
-  Serial.begin(9600);
-  loadSettings();
-  button.begin();
-  checkForSettings();
-  setupOutputs();
   setupSerial();
+  loadSettings();
+  setBaudRate();
+  button.begin();
+  setupOutputs();
+  checkForSettings();
   updateBay(bayStatus); //Set the leds up
 }
 

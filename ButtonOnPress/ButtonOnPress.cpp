@@ -37,9 +37,9 @@ bool ButtonOnPress::isPressed() {
 		return false;
 	}
 }
-//Returns true if the button is currently pressed and has been pressed for at least a ceratin time.
+//Returns true if the button is currently pressed and has been pressed for at least a ceratin time. checkButton() must have been called recently
 bool ButtonOnPress::longPress(unsigned long timePressed) {
-	if (millis() - pressTime >= timePressed && isPressed()) {
+	if (currentlyPressed && millis() - pressTime >= timePressed) {
 		return true;
 	} else {
 		return false;

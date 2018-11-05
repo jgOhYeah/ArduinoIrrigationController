@@ -34,7 +34,9 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
     }
     case reset: { //The watchdog timer with the builtin bootloader crashes arduino nanos, so don't reset or
     //reset with hardware (gpio pin connected to reset pin). OR reflash with arduino uno bootloader.
-      Serial.println("I have been told to reset.");
+#ifdef enableReset
+      reset();
+#endif
       break;
     }
     default: {
@@ -60,4 +62,8 @@ void setupSerial() {
   bus.set_error(errorHandler);
   bus.begin();
 }
-
+void setBaudRate() {
+  Serial.flush();
+  Serial.begin(readULong(serialBaudAddress));
+  //Serial.begin(9600); //Temporary while sorting serial settings out
+}
