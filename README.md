@@ -1,5 +1,7 @@
 # Arduino Irrigation Controller
 An irrigation controller for a small farm that remotely controls a set of linear actuators that raise and lower flaps over pipes.
+## This is still a WORK IN PROGRESS!
+I am mainly using this repository to transfer files! If you are interested in using this, have a look at `SlaveUnit/SlaveUnit3.5` and `Controller/20180923_Controller3.0_PJON`. **There will be bugs!**
 ## Links
 - [User Guide](Documentation/UserGuide.md)
 - [Technical Notes and rambling](Documentation/TechnicalNotes)
