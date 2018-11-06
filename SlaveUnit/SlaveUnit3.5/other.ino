@@ -85,7 +85,7 @@ void checkCallbacks() {
     }
   }
 }
-#error "Stuff to do to flash leds here!"
+//#error "Stuff to do to flash leds here!"
 void flashLeds(byte mode) {
   static unsigned long startTime = 0;
   static byte position = 0; //Position in sequence
@@ -93,15 +93,30 @@ void flashLeds(byte mode) {
   bool timeThisRound = false;
   if(millis() - startTime >= ledFlashSpeed) {
     startTime = millis();
-    timeThis round = true;
+    timeThisRound = true;
   }
   switch(mode) {
-    case ledsOn:
+    case flashAllOn:
       ALL_LEDS(HIGH);
       break;
-    case ledsOff:
+    case flashAllOff:
       ALL_LEDS(LOW);
       break;
+  }
+}
+//The arrays in these functions must be at least 4 bytes long.
+unsigned long arrayToLong(byte * arrayToConvert) {
+  unsigned long number = 0;
+  for(char i = 3; i >= 0; i--) {
+    number = number << 8; //0 << x = 0 all the time (hopefully)
+    number += arrayToConvert[i];
+  }
+  return number;
+}
+void longToArray(byte * arrayToReceive, unsigned long longToConvert) {
+  for(byte i = 0; i < 4; i++) {
+    arrayToReceive[i] = longToConvert & 255);
+    longToConvert = longToConvert >> 8; //We don't care that value will be 0
   }
 }
 

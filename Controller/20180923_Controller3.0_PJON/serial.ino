@@ -50,14 +50,16 @@ void setupSerial() {
   bus.set_synchronous_acknowledge(false);
   bus.set_asynchronous_acknowledge(true);
   bus.set_communication_mode(PJON_HALF_DUPLEX);
-  bus.strategy.set_enable_RS485_pin(serialEnablePin);
+  bus.strategy.set_RS485_rxe_pin(rs485rxPin);
+  // Set RS485 transmission enable pin
+  bus.strategy.set_RS485_txe_pin(rs485txPin);
   bus.set_error(errorHandler);
   bus.begin();
   bus.set_receiver(recieveData);
   sendToAll(reportStatus,1);
 }
 void sendToAll(const char * data,byte length) {
-  for(byte i = firstSlaveAddress; i <= lastSlaveAddress; i++) {
+  for(byte i = firstSlaveAddress+firstDevice; i <= lastSlaveAddress; i++) {
     bus.send(i, data, length);
     bus.update();
     bus.receive();

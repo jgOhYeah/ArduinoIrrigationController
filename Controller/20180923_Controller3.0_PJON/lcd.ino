@@ -93,12 +93,12 @@ void drawBayStates() {
     lcd.write('-');
   }
   allTheSame = true;
-  if(bayStatus[0] == bayUnknown || bayStatus[0] == bayNotPresent) {
+  if(bayStatus[firstDevice] == bayUnknown || bayStatus[firstDevice] == bayNotPresent) {
     allTheSame = false;
   }
   for(byte i = firstDevice; i < numberOfDevices; i++) {
     lcd.write(byte(bayOptions[bayStatus[i]]));
-    if(bayStatus[i] != bayStatus[0]) {
+    if(bayStatus[i] != bayStatus[firstDevice]) {
       allTheSame = false;
     }
   }

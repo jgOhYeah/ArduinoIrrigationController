@@ -1,20 +1,12 @@
 #define masterId 255
 byte myId; //44 is bay 5, 45 is bay 6... 40 is bay 1
-#define reportStatus 's'
-#define overwriteStatus 'w'
-#define reset 'x'
-#define setStatus 'r'
-#define bayUnknown 0
-#define bayShut 1
-#define bayHalf 2
-#define bayOpen 3
-#define bayNotPresent 4
+//#define defaultBaudRate 9600 //Default baud rate to reset the value stored in eeprom to.
+
 #define ledFlashSpeed 500
 #define longPressTime 5000
 #define serialTimeout 600000 //10 minutes
 //#define enableReset //Do not define this if this code is running on an atmega 328p running the arduino nano bootloader! (arduino uno bootloader is fine)
 char bayStatus = bayUnknown;
-
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
@@ -35,6 +27,11 @@ unsigned long timeAtOpen = 0;
 #define bayToHalf 2
 char callbackOperation = bayNothing;
 
+//ERROR Codes
+#define invalidAddress 50
+#define packetError 51
+#define unrecognisedCommand 52
+
 //ADDRESSES OF VALUES STORED IN EEPROM
 //Longs take 4 bytes, ints take 2 and bytes take 1
 #define addressAddress 0
@@ -45,7 +42,7 @@ char callbackOperation = bayNothing;
 
 
 //Leds
-#error "Defines for leds need sorting out!"
+//#error "Defines for leds need sorting out!"
 #define ALL_LEDS(state) digitalWrite(upLed,state); digitalWrite(halfLed,state); digitalWrite(downLed,state)
 #define flashAllOn 0
 #define flashAllOff 1

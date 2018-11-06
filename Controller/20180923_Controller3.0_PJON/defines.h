@@ -2,15 +2,16 @@
 //would have crashed after a while
 const char softwareVersion[] PROGMEM = " V3.0";
 //Pins
-#define serialEnablePin 9
+#define rs485rxPin 10
+#define rs485txPin 9
 
 //Serial
-#define baudRate 9600
-
+//#define baudRate 9600
+#define baudRate 38400
 //Addresses 0 to numberOfDevices for individual addressing, all devices are 'a'
 #define masterAddress 255
 #define numberOfDevices 7
-#define firstDevice 5-1 //To allow numbers to match up with the bays when being installed not all at a time.
+#define firstDevice 5 //To allow numbers to match up with the bays when being installed not all at a time.
 #define firstSlaveAddress 40
 #define lastSlaveAddress firstSlaveAddress + numberOfDevices - 1
 //Commands and states
@@ -34,7 +35,7 @@ const char softwareVersion[] PROGMEM = " V3.0";
 
 #define startDelay 2000
 #define replyDelay 3000
-
+char charsToSend[3]; //For some reason this cannot be a local variable.
 //Error codes
 #define invalidAddress 50
 #define packetError 51

@@ -1,8 +1,8 @@
-/*int freeRam () {
+int freeRam () {
   extern int __heap_start, *__brkval;
   int v;
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
-}*/
+}
 
 void runningTime(char * timeSinceStart) {
   unsigned long milliSeconds = millis();
@@ -46,6 +46,13 @@ void serialDelay(unsigned long waitTime) {
 }
 //Function that handles and displays errors. Either called by PJON or manually
 void errorHandler(uint8_t code, uint16_t data, void *custom_pointer) {
+#ifdef serialDebug
+  Serial.println();
+  Serial.print(F("ERROR:\tError Code: "));
+  Serial.print(code);
+  Serial.print(F("\tData: "));
+  Serial.print(data);
+#endif
   digitalWrite(LED_BUILTIN,HIGH);
   currentScreen = errorScreen;//Freeze the main screen if active
   //Put the time into the message
@@ -53,6 +60,10 @@ void errorHandler(uint8_t code, uint16_t data, void *custom_pointer) {
   strcat(completeErrorMsg," ");
   switch(code) {
     case PJON_CONNECTION_LOST: {
+#ifdef serialDebug
+      Serial.print(F("\tAddress: "));
+      Serial.print(byte(bus.packets[data].content[0]));
+#endif
       bayStatus[byte(bus.packets[data].content[0])-firstSlaveAddress] = bayNotPresent; //Update the array of bay statuses to be disconnected.
       //Build the error message
       //Copy "all" to the string.
@@ -121,6 +132,9 @@ void errorHandler(uint8_t code, uint16_t data, void *custom_pointer) {
       //UnkownErrorMessage
     }
   }
+#ifdef serialDebug
+  Serial.println();
+#endif
   //Swap to the error screen
   changeScreen();
   digitalWrite(LED_BUILTIN,LOW);

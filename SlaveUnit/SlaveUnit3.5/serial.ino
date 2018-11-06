@@ -18,9 +18,26 @@ void informMaster(byte address) {
   bus.send(address,msgToSend,2);
 }
 void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info &packet_info) {
-  /* Make use of the payload before sending something, the buffer where payload points to is
-     overwritten when a new message is dispatched */
-  //Need more error checking!!! See master reciever function for inspiration.
+  //Initial error checking - same as master reciever function.
+  byte senderId;
+  //Error checking on top of lots of error checking. Just in case another device stops playing nice / or does something weird
+  //Get the device's address and make sure that it is a bay outlet address
+  if(packet_info.header & PJON_TX_INFO_BIT) {
+    senderId = packet_info.sender_id;
+    if(senderId < firstSlaveAddress || senderId > lastSlaveAddress) { //Invallid Address
+      errorHandler(invalidAddress,senderId,NULL);
+      return; //Stop execution there and don't continue.
+    }
+  } else { //We don't know who they are, so the packet is not much use.
+    errorHandler(invalidAddress,256,NULL); //256 is an address that I will not use, so is dud.
+    return; //Stop execution there and don't continue.
+  }
+  //Check that the packet has at least an instruction.
+  if(length < 1) {
+    errorHandler(packetError,senderId,NULL);
+    return; //Stop execution there and don't continue.
+  }
+  //See what the message tells us to do.
   switch(payload[0]) {
     case reportStatus: {
       digitalWrite(LED_BUILTIN,HIGH);
@@ -29,6 +46,10 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
       break;
     }
     case setStatus: {
+      if(length < 2) {
+        errorHandler(packetError,senderId,NULL);
+        return; //Stop execution there and don't continue.
+      }
       updateBay(payload[1]);
       break;
     }
@@ -39,13 +60,32 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
 #endif
       break;
     }
-    default: {
-      for(byte i = 0; i < 10; i++) { //Flash a led a bit so that it is obvious something unkown was sent.
-        digitalWrite(LED_BUILTIN,HIGH);
-        delay(250);
-        digitalWrite(LED_BUILTIN,LOW);
-        delay(250);
+    case setEeprom: {
+      #error "need to finish this bit"
+      if(length < 2) {
+        errorHandler(packetError,senderId,NULL);
+        return; //Stop execution there and don't continue.
       }
+      break;
+    }
+    case readEeprom: {
+      #error "need to finish this bit"
+      if(length < 2) { //Put this in a common function between the read and write?
+        errorHandler(packetError,senderId,NULL);
+        return; //Stop execution there and don't continue.
+      }
+      switch (payload[0]) {
+        case bAddress: //1 byte
+        case halfPos: //1 byte
+        case uTravelSpeed: //4 bytes
+        case dTravelSpeed: //4 bytes
+        case baudRate: //4 bytes
+          break;
+      }
+      break;
+    }
+    default: {
+      errorHandler(unrecognisedCommand,payload[0],NULL);
     }
   }
 }

@@ -13,7 +13,7 @@ void menuScreenButtons() {
       cursorRow = 0;
       cursorPos = 6;
     }
-    lcd.setCursor(cursorPos,cursorRow);
+    lcd.setCursor(cursorPos,cursorRow) ;
   }
   if(rightButton.checkButton()) {
     //stuff
@@ -130,29 +130,28 @@ void mainScreenButtons() {
       changeScreen();
       //Master Setting
     } else if (cursorPos == numberOfDevices) { //On the change all bays at once button
-      byte masterStatus;
+      byte masterStatus = bayShut;
       //Serial.println("All the same: " + allTheSame);
       if(allTheSame) {
-        masterStatus = bayStatus[0];
+        masterStatus = bayStatus[firstDevice];
         if(masterStatus == bayOpen) {
           masterStatus = bayShut;
         } else {
           masterStatus++;
         }
-      } else {
-        masterStatus = bayShut;
       }
       //char charsToSend[3];
-      char charsToSend[3]; //For some reason this cannot be a local variable.
+      //char charsToSend[3]; //For some reason this cannot be a local variable.
       charsToSend[0] = setStatus;
       charsToSend[1] = masterStatus; //Prepare the data - needs to be written at runtime so putting in {} in one line does not seem to work.
       charsToSend[2] = char(0); //Null terminate the array just in cse something attempts to use it as a string.
       sendToAll(charsToSend,2);
-      bus.update();
+      //bus.update();
       lcd.setCursor(firstDevice,1);
-      for(byte i = firstDevice; i < numberOfDevices; i++) {
+      byte bayOptionsChar = byte(bayOptions[masterStatus]);
+      for(byte i=firstDevice; i < numberOfDevices; i++) {
         bayStatus[i] = masterStatus;
-        lcd.write(byte(bayOptions[masterStatus]));
+        lcd.write(bayOptionsChar);
       }
       lcd.setCursor(cursorPos,1);
       allTheSame = true;
@@ -163,7 +162,7 @@ void mainScreenButtons() {
         bayStatus[cursorPos]++;
       }
       //char charsToSend[3];
-      char charsToSend[3]; //For some reason this cannot be a local variable.
+      //char charsToSend[3]; //For some reason this cannot be a local variable.
       charsToSend[0] = setStatus;
       charsToSend[1] = bayStatus[cursorPos]; //Prepare the data
       charsToSend[2] = char(0);
@@ -177,11 +176,11 @@ void mainScreenButtons() {
       lcd.setCursor(cursorPos,1);
       //Check if still all the same
       allTheSame = true;
-      if(bayStatus[0] == bayUnknown || bayStatus[0] == bayNotPresent) {
+      if(bayStatus[firstDevice] == bayUnknown || bayStatus[firstDevice] == bayNotPresent) {
         allTheSame = false;
       }
       for(byte i = firstDevice; i < numberOfDevices; i++) {
-        if(bayStatus[i] != bayStatus[0]) {
+        if(bayStatus[i] != bayStatus[firstDevice]) {
           allTheSame = false;
         }
       }

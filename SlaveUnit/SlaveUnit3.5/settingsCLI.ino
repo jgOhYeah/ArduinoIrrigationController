@@ -18,6 +18,8 @@ void checkForSettings() {
       }
     }
     ALL_LEDS(LOW);
+    digitalWrite(rs485rxPin,HIGH); //Disable the rs485 transiever to use the serial port to talk usb.
+    digitalWrite(rs485txPin,LOW);
     //We are now in settings mode
     Serial.setTimeout(serialTimeout);
     Serial.println(F("Hello, you have just entered settings mode."));
@@ -62,6 +64,7 @@ void checkForSettings() {
           Serial.print(F("Baud rate was "));
           Serial.print(oldBaud);
           Serial.println(F("bps."));
+          Serial.println(F("To view the help text, type \"1\" or \"h\" and then enter."));
           //Flash leds?
           ALL_LEDS(HIGH);
         }
@@ -78,6 +81,8 @@ void checkForSettings() {
         case '0': { //Exit settings
           Serial.print(F("Are you sure you want to exit settings?"));
           if(confirmationDialog()) {
+            Serial.println(F("Exiting settings and returning to normal operation."));
+            digitalWrite(rs485rxPin,LOW); //Re-enable the rs485 transiever to use the serial port to talk usb.
             return;
           }
           break;

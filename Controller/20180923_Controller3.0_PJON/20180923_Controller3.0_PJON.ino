@@ -1,9 +1,12 @@
 //Include the defines.h file in the same directory
 #include "defines.h"
+#include "settings.h"
 /* Include Async ACK code setting PJON_INCLUDE_ASYNC_ACK as true before including PJON.h */
 #define PJON_INCLUDE_ASYNC_ACK true
 #define PJON_MAX_PACKETS 15
 #define PJON_INCLUDE_TS
+
+
 #include <PJON.h>
 
 uint8_t bus_id[] = {0, 0, 0, 1};
