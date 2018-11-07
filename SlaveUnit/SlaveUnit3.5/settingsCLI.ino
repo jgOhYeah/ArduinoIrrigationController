@@ -180,7 +180,7 @@ void checkForSettings() {
           Serial.print(F("is currently "));
           Serial.print(readULong(serialBaudAddress));
           Serial.println(F("."));
-          long number = acceptNewValue(50,2000000); //Atmega 328ps can get up to 2Mbps, although I'm not sure that the network will be able to! Interesting read: https://arduino.stackexchange.com/questions/296/how-high-of-a-baud-rate-can-i-go-without-errors
+          long number = acceptNewValue(minSerialBaud,maxSerialBaud); //Atmega 328ps can get up to 2Mbps, although I'm not sure that the network will be able to! Interesting read: https://arduino.stackexchange.com/questions/296/how-high-of-a-baud-rate-can-i-go-without-errors
           if(number > 0) {
             Serial.print(F("You are about to change the baud rate to "));
             Serial.print(number);
@@ -218,10 +218,12 @@ void checkForSettings() {
     }
   }
 }
+//Generic syntax error message
 void printNotUnderstand() {
   Serial.print(F("Sorry, I did not recognise what you were sending. "));
   Serial.println(F("To view the help text, type \"1\" or \"h\" and then enter."));
 }
+//The help prompts
 void printHelp() {
   Serial.println();
   Serial.println();
@@ -242,6 +244,7 @@ void printHelp() {
   //Serial.println(F(" {7} Set the bay to a certain position (open, half or shut).")); //TODO: Not yet implemented
   Serial.println(F(" {7} Change the baud rate of the serial connection (Potentially DANGEROUS!)."));
 }
+//Prints current configuration
 void printCurrentSettings() {
   Serial.println();
   Serial.println();
@@ -282,6 +285,7 @@ void printCurrentSettings() {
   Serial.print(F("A quick reminder: "));
   Serial.println(F("If for some reason you cannot connect to or communicate with this bay after changing the baud rate, reset the baud rate to 9600bps by pressing the button for at least 5 seconds after entering settings mode."));
 }
+//Stuff to receive a number within a range with prompts from the user.
 long acceptNewValue(unsigned long minimum, unsigned long maximum) {
   Serial.print(F("To change this, type the new value in and then press enter."));
   printNewValueRange(minimum,maximum);
@@ -301,7 +305,7 @@ long acceptNewValue(unsigned long minimum, unsigned long maximum) {
         incorrectNumber = false;
         break;
       default:
-        if(number < minimum || number > maximum) {
+        if(outsideRange(number,minimum,maximum)) {
           Serial.print(F("The value you have entered, "));
           Serial.print(number);
           Serial.print(F(", is outside the required range."));

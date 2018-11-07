@@ -6,6 +6,7 @@
 #define setStatus 'r'
 #define setEeprom 'm'
 #define readEeprom 'n'
+#define reportEeprom 'o' //The reply message sent to readEeprom
 
 //EEPROM value codes
 #define bAddress 'a'

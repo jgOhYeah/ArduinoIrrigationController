@@ -11,6 +11,8 @@ char bayStatus = bayUnknown;
 #define TOSTRING(x) STRINGIFY(x)
 
 #define maxBayTime 43383508 //(2^32-1)/99 is the largest number you can have before it possibly overflows
+#define minSerialBaud 50
+#define maxSerialBaud 2000000
 byte halfwayPos; //25 Percent from the bottom
 unsigned long downTravelSpeed; //Default 26000
 unsigned long upTravelSpeed; //Default 24000

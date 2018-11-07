@@ -105,18 +105,25 @@ void flashLeds(byte mode) {
   }
 }
 //The arrays in these functions must be at least 4 bytes long.
-unsigned long arrayToLong(byte * arrayToConvert) {
+unsigned long arrayToLong(byte * arrayToConvert, byte startIndex) {
   unsigned long number = 0;
-  for(char i = 3; i >= 0; i--) {
+  for(byte i = startIndex+4; i > startIndex; i--) {
     number = number << 8; //0 << x = 0 all the time (hopefully)
-    number += arrayToConvert[i];
+    number += arrayToConvert[i-1]; //-1 is to zero index without needing to have i as a char so that is can be -1 to not be >= 0 so it will stop looping.
   }
   return number;
 }
-void longToArray(byte * arrayToReceive, unsigned long longToConvert) {
-  for(byte i = 0; i < 4; i++) {
-    arrayToReceive[i] = longToConvert & 255);
+void longToArray(byte * arrayToReceive, byte startIndex, unsigned long longToConvert) {
+  for(byte i = startIndex; i < startIndex+4; i++) {
+    arrayToReceive[i] = longToConvert & 255;
     longToConvert = longToConvert >> 8; //We don't care that value will be 0
   }
 }
 
+bool outsideRange(unsigned long number, unsigned long minimum, unsigned long maximum) {
+  if(number < minimum || number > maximum) {
+    return true;
+  } else {
+    return false;
+  }
+}
