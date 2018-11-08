@@ -1,0 +1,153 @@
+void setupLcd() {
+  //Print the welcome message
+  lcd.clear();
+  char charBuffer[30];//Originally was 16
+  //"Irrigation "
+  strcpy_P(charBuffer, irrigation);
+  lcd.write(charBuffer);
+  lcd.setCursor(0,1);
+  //"Controller"
+  strcpy_P(charBuffer, controller);
+  lcd.write(charBuffer);
+  //" V2.0"
+  strcpy_P(charBuffer, softwareVersion);
+  lcd.write(charBuffer);
+  //PrintNewLine
+  //printNewLine();
+}
+
+void changeScreen(byte nextMode) {
+  previousScreen = currentScreen;
+  currentScreen = nextMode;
+ //When Changing screen
+  scrollPos = 0;
+  lcd.clear();
+  char charBuffer[15];
+  switch(currentScreen) {
+    case initScreen:
+      //Print the initialising message
+      lcd.clear();
+      strcpy_P(charBuffer, initialising);
+      //serialCom.sendString(charBuffer);
+      lcd.write(charBuffer);
+      //printNewLine();
+      //printNewLine();
+      lcd.cursor();
+      break;
+    case mainScreen:
+      //Print out the bay numbers
+      for(byte i = 1; i <= numberOfDevices; i++) {
+        lcd.print(i);
+      }
+      //Master control
+      lcd.print('A');
+      drawBayStates();
+      lcd.setCursor(11,1);
+      strcpy_P(charBuffer,stringMore);
+      lcd.write(charBuffer);
+      drawClock();
+      cursorPos = firstDevice;
+      cursorRow = 1;
+      //Stuff
+      break;
+    case menuScreen:
+      strcpy_P(charBuffer,stringBack);
+      lcd.write(charBuffer);
+      strcpy_P(charBuffer, stringResetAll);
+      lcd.write(charBuffer);
+      lcd.setCursor(0,1);
+      strcpy_P(charBuffer, stringLastErrMsg);
+      lcd.write(charBuffer);
+      cursorPos = 0;
+      cursorRow = 0;
+      break;
+    case errorScreen:
+      //Serial.println(F("Error logs displayed"));
+      drawErrorScreenTop();
+      lcd.setCursor(0,1);
+      lcd.write(completeErrorMsg);
+      cursorPos = 0;
+      cursorRow = 0;
+      break;
+    //Screens for remotely reading and writing eeprom in the slaves.
+    case setupScreen:
+    case editEepromScreen:
+    case setValueScreen:
+      break;
+  }
+  lcd.setCursor(cursorPos,cursorRow);
+}
+void drawErrorScreenTop() {
+  char charBuffer[7];
+  lcd.setCursor(0+scrollPos,0);
+  strcpy_P(charBuffer, stringBack);
+  lcd.write(charBuffer);
+  strcpy_P(charBuffer, stringError);
+  lcd.write(charBuffer);
+  drawClock();
+}
+void drawClock() {
+  char charBuff[8];
+  runningTime(charBuff);
+  lcd.setCursor(16-strlen(charBuff)+scrollPos,0);
+  //Serial.println(strlen(timeFormatted));
+  lcd.write(charBuff);
+}
+void drawBayStates() {
+  //Go to the row beneath and print out the status of each
+  lcd.setCursor(0,1);
+  for(byte i = 0; i < firstDevice; i++) { //Blank out unused bays
+    lcd.write('-');
+  }
+  allTheSame = true;
+  if(bayStatus[firstDevice] == bayUnknown || bayStatus[firstDevice] == bayNotPresent) {
+    allTheSame = false;
+  }
+  for(byte i = firstDevice; i < numberOfDevices; i++) {
+    lcd.write(byte(bayOptions[bayStatus[i]]));
+    if(bayStatus[i] != bayStatus[firstDevice]) {
+      allTheSame = false;
+    }
+  }
+  lcd.write('*');
+}
+
+/* The screen should look like this:
+0123456789ABCDEF
+*Back __TITLE___
+ < 0000000000X >
+ */
+unsigned long inputValueScreen(char * title,char suffix, unsigned long defaultValue, unsigned long minimum, unsigned long maximum, byte numberOfDigits) {
+  lcd.clear();
+  byte previousScreen = currentScreen;
+  currentScreen = setValueScreen; //Freeze the other screens if needed.
+  scrollPos = 0;
+  //Top row
+  char charBuffer[7]; //Write the 
+  strcpy_P(charBuffer, stringBack);
+  lcd.write(charBuffer);
+  lcd.setCursor(16-strlen(title),0);
+  lcd.write(charBuffer);
+  //Bottom row
+  inputValueBottomRow(defaultValue, suffix, numberOfDigits);
+  currentScreen = previousScreen;
+}
+void inputValueBottomRow(unsigned long number, char suffix, byte numberOfDigits) {
+  char charBuffer[11];
+  byte xStartPos = 16-numberOfDigits-4; //Right align. 4 spots are for the buttons.
+  if(suffix != 0) { //If there is a suffix included, add a space for it.
+    xStartPos--;
+  }
+  lcd.setCursor(xStartPos,0);
+  strcpy_P(charBuffer, leftButtonSymbol);
+  lcd.write(charBuffer);
+  ltoa(number,charBuffer,10); //Convert the default number to a string.
+  lcd.write(charBuffer);
+  if(suffix != 0) {
+    lcd.write(suffix);
+  }
+  strcpy_P(charBuffer, rightButtonSymbol);
+  lcd.write(charBuffer);
+  //That should take us to the last character
+}
+

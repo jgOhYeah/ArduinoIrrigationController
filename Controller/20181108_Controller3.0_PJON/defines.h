@@ -1,0 +1,88 @@
+//This is version 3.0. Version 1.0 used strings and probably
+//would have crashed after a while
+const char softwareVersion[] PROGMEM = " V3.0";
+//Pins
+#define rs485rxPin 10
+#define rs485txPin 9
+
+//Serial
+//#define baudRate 9600
+#define baudRate 38400
+//Addresses 0 to numberOfDevices for individual addressing, all devices are 'a'
+#define masterAddress 255
+#define numberOfDevices 7
+#define firstDevice 5 //To allow numbers to match up with the bays when being installed not all at a time.
+#define firstSlaveAddress 40
+#define lastSlaveAddress firstSlaveAddress + numberOfDevices - 1
+//Buttons
+#define buttonRight 6
+#define buttonLeft 7
+#define buttonSelect 8
+#define btnOffTime 150 //Minimum amount of time between presses
+#define buttonPressedState LOW //Which way the pin is pulled when it is pressed - must be low if pullups used.
+#define pullupsEnabled false //Enable the internal pullup resistors
+
+#define startDelay 2000
+#define replyDelay 3000
+char charsToSend[3]; //For some reason this cannot be a local variable.
+//Error codes
+#define invalidAddress 50
+#define packetError 51
+
+//Variables and strings
+byte bayStatus[numberOfDevices];
+
+//LCD Stuff
+#define clockUpdateSpeed 5000
+//Screen selection
+#define mainScreen 0
+#define menuScreen 1
+#define errorScreen 2
+#define initScreen 3
+#define setupScreen 4
+#define editEepromScreen 5
+#define setValueScreen 6
+byte currentScreen = initScreen;
+byte previousScreen = mainScreen;
+//Speed at which scrolls - number of chars at a time
+#define scrollSkips 9
+//Cursor and current position
+byte cursorPos = 0;
+byte cursorRow = 0;
+byte scrollPos = 0;
+bool allTheSame = false;
+//Store the error messages
+char completeErrorMsg[41] = "Nothing yet"; //Assuming the lcd can store 40 chars in its ram when it comes to printing
+const byte bayOptions[] = {'?','S','H','O','X'};
+//Strings
+const char colon[] PROGMEM = ":"; //Want to be a string to use with strcpy
+const char space[] PROGMEM = " ";
+const char all[] PROGMEM = "ALL,";
+const char zero[] PROGMEM = "0";
+const char comma[] PROGMEM = ",";
+const char bay[] PROGMEM = "Bays ";
+const char irrigation[] PROGMEM = "Irrigation ";
+const char controller[] PROGMEM = "Controller";
+const char initialising[] PROGMEM = "Initialising...";
+const char crnl[] PROGMEM = "\r\n";
+
+//Lcd Strings
+const char leftButtonSymbol[] PROGMEM = "< ";
+const char rightButtonSymbol[] PROGMEM = " >";
+const char stringBack[] PROGMEM = "*Back";
+const char stringMore[] PROGMEM = "*More";
+const char stringResetAll[] PROGMEM = "*Reset all";
+const char stringLastErrMsg[] PROGMEM = "*Last error msg";
+const char stringError[] PROGMEM = "ERROR ";
+
+//Error Strings
+const char lengthString[] PROGMEM = "Length: ";
+const char contentTooLong[] PROGMEM = "Msg too long.";
+const char bufferTooLong[] PROGMEM = "Packet Buffer full.";
+const char noReply[] PROGMEM = " Disconnected";
+const char unknownError[] PROGMEM = "Unkown Error: ";
+const char packetErrorString[] PROGMEM = "Packet Error, ID: ";
+const char invalidAddressString[] PROGMEM = "Invalid Address: ";
+
+//const char* const errorMessages[] PROGMEM = {empty, enableLineLow, empty, rxTimedOut, msgTooLong, checksumNotMatch, addressTooLarge, rxNotMatchExpected, invalidCommand,noReply};
+
