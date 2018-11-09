@@ -36,7 +36,7 @@ void menuScreenButtons() {
     if(cursorPos == 0 && cursorRow == 0) {
       //Go to the home screen
       //Serial.println(F("Going to the home screen"));
-      changeScreen(mainScreen);
+      changeScreen(mainScreen, mainScreen);
     //Reset all
     } else if (cursorPos == 6) {
       digitalWrite(LED_BUILTIN,HIGH);
@@ -50,7 +50,7 @@ void menuScreenButtons() {
     } else {
       //Show the error logs
       //Serial.println(F("Error logs called"));
-      changeScreen(errorScreen);
+      changeScreen(errorScreen, menuScreen);
     }
   }
 }
@@ -77,7 +77,7 @@ void errorScreenButtons() {
   if(selectButton.checkButton()) {
     //Go to main screen
     //Serial.println(F("Select button pressed"));
-    changeScreen(mainScreen);
+    changeScreen(previousScreen,mainScreen);
   }
 }
 //Handler for the buttons on the main screen.
@@ -123,7 +123,7 @@ void mainScreenButtons() {
     //Serial.println("Select button pressed");
     if(cursorPos == 11) {
       //Call the menu screen if on the menu button
-      changeScreen(menuScreen);
+      changeScreen(menuScreen,mainScreen);
       //Master Setting
     } else if (cursorPos == numberOfDevices) { //On the change all bays at once button
       byte masterStatus = bayShut;

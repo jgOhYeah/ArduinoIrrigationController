@@ -138,6 +138,20 @@ void errorHandler(uint8_t code, uint16_t data, void *custom_pointer) {
 #endif
   //Swap to the error screen
   currentScreen = tempScreen;
-  changeScreen(errorScreen);
+  changeScreen(errorScreen,currentScreen);
   digitalWrite(LED_BUILTIN,LOW);
 }
+
+
+void requestNumberInput (char * title,char suffix, unsigned long defaultValue, unsigned long minimum, unsigned long maximum, byte numberOfDigits, void (*callbackFunction)(unsigned long) ) {
+  changeScreen(setValueScreen,currentScreen); //Will not do anything apart from set the variables up and clear the screen as data needs to be passed to this function to be written
+  char charBuffer[11];
+  strcpy_P(charBuffer,stringBack);
+  lcd.write(charBuffer);
+  lcd.setCursor(16-strlen(title),0);
+  lcd.write(charBuffer);
+  //Bottom row will be drawn later
+  inputValueBottomRow(defaultValue, suffix, numberOfDigits);
+  callbackFunctionStored = callbackFunction; //Save the function to be called with the result.
+}
+

@@ -39,11 +39,11 @@ void setup() {
   //Set up lcd and serial port, wait for system to start
   setupLcd();
   delay(startDelay); //Wait for system to power up
-  changeScreen(initScreen); //Screen is set to init by default
+  changeScreen(initScreen, mainScreen); //Screen is set to init by default
   setupSerial();
   serialDelay(replyDelay);
   if(currentScreen != errorScreen) {
-    changeScreen(mainScreen);
+    changeScreen(mainScreen, mainScreen);
   }
   //Set up the button pins
   leftButton.begin();

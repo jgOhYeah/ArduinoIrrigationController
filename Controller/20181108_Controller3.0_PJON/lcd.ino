@@ -16,8 +16,8 @@ void setupLcd() {
   //printNewLine();
 }
 
-void changeScreen(byte nextMode) {
-  previousScreen = currentScreen;
+void changeScreen(byte nextMode, byte previousMode) {
+  previousScreen = previousMode;
   currentScreen = nextMode;
  //When Changing screen
   scrollPos = 0;
@@ -118,18 +118,8 @@ void drawBayStates() {
  < 0000000000X >
  */
 unsigned long inputValueScreen(char * title,char suffix, unsigned long defaultValue, unsigned long minimum, unsigned long maximum, byte numberOfDigits) {
-  lcd.clear();
-  byte previousScreen = currentScreen;
-  currentScreen = setValueScreen; //Freeze the other screens if needed.
   scrollPos = 0;
   //Top row
-  char charBuffer[7]; //Write the 
-  strcpy_P(charBuffer, stringBack);
-  lcd.write(charBuffer);
-  lcd.setCursor(16-strlen(title),0);
-  lcd.write(charBuffer);
-  //Bottom row
-  inputValueBottomRow(defaultValue, suffix, numberOfDigits);
   currentScreen = previousScreen;
 }
 void inputValueBottomRow(unsigned long number, char suffix, byte numberOfDigits) {

@@ -85,4 +85,5 @@ const char packetErrorString[] PROGMEM = "Packet Error, ID: ";
 const char invalidAddressString[] PROGMEM = "Invalid Address: ";
 
 //const char* const errorMessages[] PROGMEM = {empty, enableLineLow, empty, rxTimedOut, msgTooLong, checksumNotMatch, addressTooLarge, rxNotMatchExpected, invalidCommand,noReply};
-
+void (*callbackFunctionStored)(unsigned long) ;
+void requestNumberInput (char * title,char suffix, unsigned long defaultValue, unsigned long minimum, unsigned long maximum, byte numberOfDigits, void (*callbackFunction)(unsigned long) );
