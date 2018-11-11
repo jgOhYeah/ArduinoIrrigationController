@@ -1,5 +1,6 @@
 //Include the defines.h file in the same directory
 #include "commands.h"
+#include "strings.h"
 #include "defines.h"
 #include "settings.h"
 /* Include Async ACK code setting PJON_INCLUDE_ASYNC_ACK as true before including PJON.h */
@@ -70,6 +71,15 @@ void loop() {
       break;
     case setValueScreen:
       inputValueScreenButtons();
+      break;
+    case setupScreen:
+      setupScreenButtons();
+      break;
+    case editEepromScreen1:
+      eepromScreen1Buttons();
+      break;
+    case editEepromScreen2:
+      eepromScreen2Buttons();
       break;
   }
 }

@@ -36,6 +36,42 @@ void recieveData (uint8_t *payload, uint16_t length, const PJON_Packet_Info &pac
       }
       break;
     }
+    case reportEeprom: {
+      if(length < 2) {
+        errorHandler(packetError,senderId,NULL);
+        return; //Stop execution there and don't continue.
+      }
+      unsigned long number;
+      switch(payload[1]) {
+        case bAddress: //8 bit settings
+        case halfPos:
+          if(length != 3) {
+            errorHandler(packetError,senderId,NULL);
+            return; //Stop execution there and don't continue.
+          }
+          number = payload[2];
+          break;
+        case uTravelSpeed: //32 bit settings
+        case dTravelSpeed:
+        case ebaudRate:
+          if(length != 6) {
+            errorHandler(packetError,senderId,NULL);
+            return; //Stop execution there and don't continue.
+          }
+          number = arrayToLong(payload,2); //Convert the number from being 4 bytes into an unsigned long
+          break;
+        default: //Something unrecognised
+          errorHandler(packetError,senderId,NULL);
+          return; //Stop execution there and don't continue.
+      }
+      if(senderId == valueBayAddress && payload[1] == valueEepromAddress) { //This is the request we made from eeprom a while ago.
+        callbackFunctionStored(number);
+      } else { //Uncalled for packet was sent, so complain
+        errorHandler(packetError,senderId,NULL);
+        return; //Stop execution there and don't continue.
+      }
+      break;
+    }
     default: {
       errorHandler(packetError,senderId,NULL); //Unexpected data recieved
       return; //Stop execution there and don't continue.
@@ -64,5 +100,26 @@ void sendToAll(const char * data,byte length) {
     bus.update();
     bus.receive();
   }
+}
+void retrieveEepromNumber(byte address,char eepromAddress,void (*callbackFunction)(unsigned long)) {
+  charsToSend[0] = readEeprom;
+  charsToSend[1] = eepromAddress; //Prepare the data
+  charsToSend[2] = char(0);
+  bus.send(address,charsToSend,2);
+  callbackFunctionStored = callbackFunction; //Where to call back from
+  valueBayAddress = address;
+  valueEepromAddress = eepromAddress;
+}
+void sendEepromLong(unsigned long number) {
+  charBuffer[0] = setEeprom;
+  charBuffer[1] = valueEepromAddress;
+  longToArray(charBuffer,2,number);
+  bus.send(valueBayAddress,charBuffer,6);
+}
+void sendEepromByte(byte number) {
+  charBuffer[0] = setEeprom;
+  charBuffer[1] = valueEepromAddress;
+  charBuffer[2] = number;
+  bus.send(valueBayAddress,charBuffer,3);
 }
 

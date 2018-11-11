@@ -3,13 +3,15 @@ void menuScreenButtons() {
     //stuff
     //Serial.println(F("Left button pressed"));
     //Currently Home button
-    if(cursorPos == 0 && cursorRow == 0) {
+    if(cursorPos == 0 && cursorRow == 0) { //Back Button
       cursorRow = 1;
+      cursorPos = 9;
     //Reset all
-    } else if (cursorPos == 6) {
+    } else if (cursorPos == 6) { //Reset all
       cursorPos = 0;
-    //Error logs
-    } else {
+    } else if (cursorPos == 9) { //Settings
+      cursorPos = 0;
+    } else { //Last error message
       cursorRow = 0;
       cursorPos = 6;
     }
@@ -25,9 +27,12 @@ void menuScreenButtons() {
     } else if (cursorPos == 6) {
       cursorPos = 0;
       cursorRow = 1;
+    } else if (cursorPos == 9) { //Settings
+      cursorPos = 0;
+      cursorRow = 0;
     //Error logs
     } else {
-      cursorRow = 0;
+      cursorPos = 9;
     }
     lcd.setCursor(cursorPos,cursorRow);
   }
@@ -46,6 +51,8 @@ void menuScreenButtons() {
       wdt_enable(WDTO_15MS); //This does not work on arduino nanos as there is a bug in the bootloader that crashes them until power is removed and reaplied.
       while(true);
       //Reset everything
+    } else if (cursorPos == 9) { //Settings
+      changeScreen(setupScreen,menuScreen);
     //Error logs
     } else {
       //Show the error logs
@@ -185,6 +192,129 @@ void mainScreenButtons() {
   }
 }
 void inputValueScreenButtons() {
-  
+  if(leftButton.checkButton()) { //Decrease the value
+    if(currentNumber > minimumValue + valueStepSize) {
+      currentNumber -= valueStepSize;
+    } else {
+      currentNumber = minimumValue;
+    }
+    inputValueBottomRow();
+  }
+  if(rightButton.checkButton()) { //Increase the value
+    if(currentNumber < maximumValue - valueStepSize) {
+      currentNumber += valueStepSize;
+    } else {
+      currentNumber = maximumValue;
+    }
+    inputValueBottomRow();
+  }
+  if(selectButton.checkButton()) { //Return the value
+    changeScreen(previousScreen,screenBeforeThat); //Go back to the last screen
+    callbackFunctionStored(currentNumber); //Return the number
+  }
 }
-
+void setupScreenButtons() {
+  if(leftButton.checkButton()) {
+    if(cursorPos == 0 && cursorRow == 0) { //Back Button
+      cursorRow = 1;
+      cursorPos = numberOfDevices - firstDevice;
+    //Reset all
+    } else if (cursorPos == 0 && cursorRow == 1) { //Far left of bottom row.
+      cursorRow = 0;
+    } else {
+      cursorPos--;
+    }
+    lcd.setCursor(cursorPos,cursorRow);
+  }
+  if(rightButton.checkButton()) {
+    if(cursorPos == 0 && cursorRow == 0) { //Back Button
+      cursorRow = 1;
+      cursorPos = 0;
+    //Reset all
+    } else if (cursorPos == (numberOfDevices - firstDevice) && cursorRow == 1) { //Far right of bottom row.
+      cursorRow = 0;
+      cursorPos = 0;
+    } else { //Left and middle of bottom row
+      cursorPos++;
+    }
+    lcd.setCursor(cursorPos,cursorRow);
+  }
+  if(selectButton.checkButton()) {
+    editingBay = cursorPos+firstDevice;
+    if(cursorPos == 0 && cursorRow == 0) { //On the back button
+      changeScreen(previousScreen,mainScreen);
+    } else { //Edit either 1 or all bays.
+      cursorPos = 0;
+      cursorRow = 0;
+      changeScreen(editEepromScreen1,setupScreen);
+    }
+  }
+}
+void eepromScreen1Buttons() {
+  if(leftButton.checkButton()) {
+    if(cursorPos == 0 && cursorRow == 0) { //Back Button
+      cursorPos = 11;
+      cursorRow = 1;
+      changeScreen(editEepromScreen2,previousScreen);
+    //Reset all
+    } else if (cursorPos == 0 && cursorRow == 1) { //Far left of bottom row.
+      cursorRow = 0;
+    } else {
+      cursorPos = 0;
+    }
+    lcd.setCursor(cursorPos,cursorRow);
+  }
+  if(rightButton.checkButton()) {
+    if(cursorPos == 0 && cursorRow == 0) { //Back Button
+      cursorRow = 1;
+      cursorPos = 0;
+    } else if (cursorPos == 0 && cursorRow == 1) { //Bottom left
+      cursorPos = 4;
+    } else { //Bottom right
+      cursorRow = 1;
+      cursorPos = 1;
+      changeScreen(editEepromScreen2,previousScreen); //Go to the next screen
+    }
+    lcd.setCursor(cursorPos,cursorRow);
+  }
+  if(selectButton.checkButton()) {
+    if(cursorPos == 0 && cursorRow == 0) { //On the back button
+      changeScreen(previousScreen,menuScreen);
+    } else if(cursorPos == 0) { //Edit up time
+      waitingMessage();
+      retrieveEepromNumber(editingBay+firstSlaveAddress,uTravelSpeed,retrievedEepromValue);
+      //char charBuffer[17];
+    } else { //Edit down time
+      
+    }
+  }
+}
+void eepromScreen2Buttons() {
+  if(leftButton.checkButton()) {
+    if (cursorPos == 1) { //Far left of bottom row.
+      cursorPos = 4;
+      cursorRow = 1;
+      changeScreen(editEepromScreen1,previousScreen);
+    } else { //Far right
+      cursorPos = 1;
+    }
+    lcd.setCursor(cursorPos,cursorRow);
+  }
+  if(rightButton.checkButton()) {
+    if(cursorPos == 0 && cursorRow == 0) { //Back Button
+      cursorRow = 1;
+      cursorPos = 1;
+    //Reset all
+    } else if (cursorPos == 1) { //Bottom left
+      cursorPos = 11;
+    } else { //Bottom right
+      cursorRow = 0;
+      cursorPos = 0;
+      changeScreen(editEepromScreen1,previousScreen);
+    }
+    lcd.setCursor(cursorPos,cursorRow);
+  }
+  if(selectButton.checkButton()) {
+    //Do something. The cursor will be on one of the two buttons in the bottom row
+  }
+}
