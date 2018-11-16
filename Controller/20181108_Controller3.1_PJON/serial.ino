@@ -53,7 +53,7 @@ void recieveData (uint8_t *payload, uint16_t length, const PJON_Packet_Info &pac
           break;
         case uTravelSpeed: //32 bit settings
         case dTravelSpeed:
-        case ebaudRate:
+        case eBaudRate:
           if(length != 6) {
             errorHandler(packetError,senderId,NULL);
             return; //Stop execution there and don't continue.
@@ -113,7 +113,7 @@ void retrieveEepromNumber(byte address,char eepromAddress,void (*callbackFunctio
 void sendEepromLong(unsigned long number) {
   charBuffer[0] = setEeprom;
   charBuffer[1] = valueEepromAddress;
-  longToArray(charBuffer,2,number);
+  longToArray((byte*)charBuffer,2,number);
   bus.send(valueBayAddress,charBuffer,6);
 }
 void sendEepromByte(byte number) {

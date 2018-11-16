@@ -184,8 +184,11 @@ void requestNumberInput (char * title,char suffix1,char suffix2, unsigned int st
 }
 void retrievedEepromValue(unsigned long number) {
   switch(valueEepromAddress) {
-    case bAddress: //8 bit settings
+    //case bAddress: //8 bit settings
     case halfPos:
+      strcpy_P(charBuffer2,stringHalfPos);
+      strupr(charBuffer2); //Convert Up Time to all capitals
+      requestNumberInput(charBuffer2,'%',0,1,number,1,100,3,sendEepromByte); //Need to retrieve value from slave to display
       break;
     case uTravelSpeed: //32 bit settings
       strcpy_P(charBuffer2,stringUp);
@@ -198,7 +201,12 @@ void retrievedEepromValue(unsigned long number) {
       strcat_P(charBuffer2,stringTime);
       strupr(charBuffer2); //Convert Up Time to all capitals
       requestNumberInput(charBuffer2,'m','s',100,number,100,600000,6,sendEepromLong); //Need to retrieve value from slave to display
-    case ebaudRate:
+    case eBaudRate:
+      strcpy_P(charBuffer2,stringBaud);
+      strcat_P(charBuffer2,stringRate);
+      strupr(charBuffer2); //Convert Up Time to all capitals
+      requestNumberInput(charBuffer2,'B','d',100,number,100,2000000,7,sendEepromLong); //Need to retrieve value from slave to display
+      break;
       break;
   }
 }

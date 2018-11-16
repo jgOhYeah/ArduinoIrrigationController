@@ -136,6 +136,7 @@ void waitingMessage() { //Not a distinct screen as such
   lcd.clear();
   strcpy_P(charBuffer,stringWaiting);
   lcd.write(charBuffer);
+  lcd.setCursor(16,0); //Set the cursor to a non visable area to temporarily hide it
 }
 void drawErrorScreenTop() {
   //char charBuffer[7];

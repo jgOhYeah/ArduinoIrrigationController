@@ -21,6 +21,9 @@ const char softwareVersion[] PROGMEM = " V3.1";
 #define btnOffTime 150 //Minimum amount of time between presses
 #define buttonPressedState LOW //Which way the pin is pulled when it is pressed - must be low if pullups used.
 #define pullupsEnabled false //Enable the internal pullup resistors
+//Stuff for the multiple pressing of the buttons - only sometimes used.
+#define btnInitialDelay 1500
+#define btnRepeatDelay 100
 
 #define startDelay 2000
 #define replyDelay 3000

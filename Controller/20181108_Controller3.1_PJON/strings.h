@@ -35,6 +35,7 @@ const char stringDown[] PROGMEM = "Down";
 const char stringTime[] PROGMEM = " Time";
 const char stringHalfPos[] PROGMEM = "Half pos";
 const char stringBaud[] PROGMEM = "Baud";
+const char stringRate[] PROGMEM = " Rate";
 
 //Error Strings
 const char lengthString[] PROGMEM = "Length: ";

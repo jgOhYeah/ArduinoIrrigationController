@@ -13,7 +13,7 @@
 #define halfPos 'b'
 #define uTravelSpeed 'c'
 #define dTravelSpeed 'd'
-#define ebaudRate 'e'
+#define eBaudRate 'e'
 
 //Bay states
 #define bayUnknown 0

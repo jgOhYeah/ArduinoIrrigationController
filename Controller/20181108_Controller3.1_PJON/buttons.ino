@@ -192,7 +192,7 @@ void mainScreenButtons() {
   }
 }
 void inputValueScreenButtons() {
-  if(leftButton.checkButton()) { //Decrease the value
+  if(leftButton.pressEvery(btnInitialDelay,btnRepeatDelay)) { //Decrease the value
     if(currentNumber > minimumValue + valueStepSize) {
       currentNumber -= valueStepSize;
     } else {
@@ -200,7 +200,7 @@ void inputValueScreenButtons() {
     }
     inputValueBottomRow();
   }
-  if(rightButton.checkButton()) { //Increase the value
+  if(rightButton.pressEvery(btnInitialDelay,btnRepeatDelay)) { //Increase the value
     if(currentNumber < maximumValue - valueStepSize) {
       currentNumber += valueStepSize;
     } else {
@@ -285,7 +285,8 @@ void eepromScreen1Buttons() {
       retrieveEepromNumber(editingBay+firstSlaveAddress,uTravelSpeed,retrievedEepromValue);
       //char charBuffer[17];
     } else { //Edit down time
-      
+      waitingMessage();
+      retrieveEepromNumber(editingBay+firstSlaveAddress,dTravelSpeed,retrievedEepromValue);
     }
   }
 }
@@ -316,5 +317,13 @@ void eepromScreen2Buttons() {
   }
   if(selectButton.checkButton()) {
     //Do something. The cursor will be on one of the two buttons in the bottom row
+    if(cursorPos == 1) { //Edit half position
+      waitingMessage();
+      retrieveEepromNumber(editingBay+firstSlaveAddress,halfPos,retrievedEepromValue);
+      //char charBuffer[17];
+    } else { //Edit baud rate
+      waitingMessage();
+      retrieveEepromNumber(editingBay+firstSlaveAddress,eBaudRate,retrievedEepromValue);
+    }
   }
 }

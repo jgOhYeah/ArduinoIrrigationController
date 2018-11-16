@@ -16,7 +16,7 @@ void ButtonOnPress::begin() {
 }
 //Returns true the first time the button has been pressed, false otherwise. Must have a certain time from the start of being pressed to when it is eligable for the next one.
 bool ButtonOnPress::checkButton() {
-	if (digitalRead(pin_) == onState_) {
+	if (isPressed()) {
 		//Only send true reply if this is the first time that the button has been checked and found to be pressed.
 		if (!currentlyPressed) {
 			currentlyPressed = true;
@@ -45,23 +45,24 @@ bool ButtonOnPress::longPress(unsigned long timePressed) {
 		return false;
 	}
 }
-//Still a work in progress!!!
-bool ButtonOnPress::pressEvery(bool callFirstTime, unsigned long initialDelayTime, unsigned long repeatedDelayTime) {
+//This function will return true the first time the button is pressed, then after the initialDelayTime (ms), it will return true every repeatedDelayTime (ms).
+bool ButtonOnPress::pressEvery(unsigned long initialDelayTime, unsigned long repeatedDelayTime) {
 	if(checkButton()) { //If the button was pressed for the first time, wait longer
 		//Callfirst time will be true if it is to be sent back and false if it is not to be.
 		firstLongPress = true;
-	} else {
-		callFirstTime = false;
+		return true;
 	}
-	if(firstLongPress) {
-		if(longPress(initialDelayTime)) {
-			callFirstTime = true;
-			firstLongPress = false;
-		}
-	} else {
-		if(longPress(repeatedDelayTime)) {
-			callFirstTime = true;
+	if (currentlyPressed) { //checkButton() will have just updated currentlyPressed, so no need to waste time checking again.
+		if (firstLongPress) { //Are we timing for the initial delay or the repeated delay?
+			if (longPress(initialDelayTime)) {
+				firstLongPress = false;
+				pressTime = millis(); //Reset the long press timing to now
+				return true;
+			}
+		} else if (longPress(repeatedDelayTime)) {
+			pressTime = millis(); //Reset the long press timing to now
+			return true;
 		}
 	}
-	return callFirstTime;
+	return false;
 }
