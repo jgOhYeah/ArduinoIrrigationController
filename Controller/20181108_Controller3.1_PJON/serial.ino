@@ -5,26 +5,26 @@ void recieveData (uint8_t *payload, uint16_t length, const PJON_Packet_Info &pac
   if(packet_info.header & PJON_TX_INFO_BIT) {
     senderId = packet_info.sender_id;
     if(senderId < firstSlaveAddress || senderId > lastSlaveAddress) { //Invallid Address
-      errorHandler(invalidAddress,senderId,NULL);
+      errorHandler(errInvalidAddress,senderId,NULL);
       return; //Stop execution there and don't continue.
     }
   } else { //We don't know who they are, so the packet is not much use.
-    errorHandler(invalidAddress,256,NULL); //256 is an address that I will not use, so is dud.
+    errorHandler(errInvalidAddress,256,NULL); //256 is an address that I will not use, so is dud.
     return; //Stop execution there and don't continue.
   }
   //Check that the packet has at least an instruction.
   if(length < 1) {
-    errorHandler(packetError,senderId,NULL);
+    errorHandler(errPacketLength,length,NULL);
     return; //Stop execution there and don't continue.
   }
   switch(payload[0]) {
     case overwriteStatus: {
       //More error checking just to be sure.
       if(length < 2) {
-        errorHandler(packetError,senderId,NULL);
+        errorHandler(errPacketLength,length,NULL);
         return; //Stop execution there and don't continue.
       } else if(payload[1] > bayOpen) { //Make sure that the status is valid. (dunno, shut, half or open) payload[1] cannot be less than 0.
-        errorHandler(packetError,senderId,NULL);
+        errorHandler(errUnkownParameters,payload[1],NULL);
         return; //Stop execution there and don't continue.
       }
       //Update the array of bay statuses.
@@ -38,7 +38,7 @@ void recieveData (uint8_t *payload, uint16_t length, const PJON_Packet_Info &pac
     }
     case reportEeprom: {
       if(length < 2) {
-        errorHandler(packetError,senderId,NULL);
+        errorHandler(errPacketLength,length,NULL);
         return; //Stop execution there and don't continue.
       }
       unsigned long number;
@@ -46,7 +46,7 @@ void recieveData (uint8_t *payload, uint16_t length, const PJON_Packet_Info &pac
         case bAddress: //8 bit settings
         case halfPos:
           if(length != 3) {
-            errorHandler(packetError,senderId,NULL);
+            errorHandler(errPacketLength,length,NULL);
             return; //Stop execution there and don't continue.
           }
           number = payload[2];
@@ -55,25 +55,25 @@ void recieveData (uint8_t *payload, uint16_t length, const PJON_Packet_Info &pac
         case dTravelSpeed:
         case eBaudRate:
           if(length != 6) {
-            errorHandler(packetError,senderId,NULL);
+            errorHandler(errPacketLength,length,NULL);
             return; //Stop execution there and don't continue.
           }
           number = arrayToLong(payload,2); //Convert the number from being 4 bytes into an unsigned long
           break;
         default: //Something unrecognised
-          errorHandler(packetError,senderId,NULL);
+          errorHandler(errUnkownCommand,payload[0],NULL);
           return; //Stop execution there and don't continue.
       }
       if(senderId == valueBayAddress && payload[1] == valueEepromAddress) { //This is the request we made from eeprom a while ago.
         callbackFunctionStored(number);
       } else { //Uncalled for packet was sent, so complain
-        errorHandler(packetError,senderId,NULL);
+        errorHandler(errUnexpectedPacket,senderId,NULL);
         return; //Stop execution there and don't continue.
       }
       break;
     }
     default: {
-      errorHandler(packetError,senderId,NULL); //Unexpected data recieved
+      errorHandler(errUnkownCommand,payload[0],NULL); //Unexpected data recieved
       return; //Stop execution there and don't continue.
     }
   }
@@ -116,7 +116,7 @@ void sendEepromLong(unsigned long number) {
   longToArray((byte*)charBuffer,2,number);
   bus.send(valueBayAddress,charBuffer,6);
 }
-void sendEepromByte(byte number) {
+void sendEepromByte(unsigned long number) { //Using longs so the code is compatitble with the code that actually requires unsigned longs
   charBuffer[0] = setEeprom;
   charBuffer[1] = valueEepromAddress;
   charBuffer[2] = number;

@@ -1,4 +1,5 @@
 void menuScreenButtons() {
+  BTN_ENABLE_CHECK();
   if(leftButton.checkButton()) {
     //stuff
     //Serial.println(F("Left button pressed"));
@@ -62,6 +63,7 @@ void menuScreenButtons() {
   }
 }
 void errorScreenButtons() {
+  BTN_ENABLE_CHECK();
   byte errorMsgLength = strlen(completeErrorMsg);
   //If not already the most left, scroll left.
   if(errorMsgLength > 16 && leftButton.checkButton() && scrollPos > 0) {
@@ -89,6 +91,7 @@ void errorScreenButtons() {
 }
 //Handler for the buttons on the main screen.
 void mainScreenButtons() {
+  BTN_ENABLE_CHECK();
   if(leftButton.checkButton()) {
     //stuff
     //Serial.println(F("Left button pressed"));
@@ -192,6 +195,7 @@ void mainScreenButtons() {
   }
 }
 void inputValueScreenButtons() {
+  BTN_ENABLE_CHECK();
   if(leftButton.pressEvery(btnInitialDelay,btnRepeatDelay)) { //Decrease the value
     if(currentNumber > minimumValue + valueStepSize) {
       currentNumber -= valueStepSize;
@@ -214,6 +218,7 @@ void inputValueScreenButtons() {
   }
 }
 void setupScreenButtons() {
+  BTN_ENABLE_CHECK();
   if(leftButton.checkButton()) {
     if(cursorPos == 0 && cursorRow == 0) { //Back Button
       cursorRow = 1;
@@ -251,6 +256,7 @@ void setupScreenButtons() {
   }
 }
 void eepromScreen1Buttons() {
+  BTN_ENABLE_CHECK();
   if(leftButton.checkButton()) {
     if(cursorPos == 0 && cursorRow == 0) { //Back Button
       cursorPos = 11;
@@ -281,16 +287,19 @@ void eepromScreen1Buttons() {
     if(cursorPos == 0 && cursorRow == 0) { //On the back button
       changeScreen(previousScreen,menuScreen);
     } else if(cursorPos == 0) { //Edit up time
+      buttonsEnabled = false; //Disable the buttons so that they cannot press anything unwanted when trying to get data from the slave
       waitingMessage();
       retrieveEepromNumber(editingBay+firstSlaveAddress,uTravelSpeed,retrievedEepromValue);
       //char charBuffer[17];
     } else { //Edit down time
+      buttonsEnabled = false; //Disable the buttons so that they cannot press anything unwanted when trying to get data from the slave
       waitingMessage();
       retrieveEepromNumber(editingBay+firstSlaveAddress,dTravelSpeed,retrievedEepromValue);
     }
   }
 }
 void eepromScreen2Buttons() {
+  BTN_ENABLE_CHECK();
   if(leftButton.checkButton()) {
     if (cursorPos == 1) { //Far left of bottom row.
       cursorPos = 4;
@@ -317,12 +326,12 @@ void eepromScreen2Buttons() {
   }
   if(selectButton.checkButton()) {
     //Do something. The cursor will be on one of the two buttons in the bottom row
+    buttonsEnabled = false; //Disable the buttons so that they cannot press anything unwanted when trying to get data from the slave
+    waitingMessage();
     if(cursorPos == 1) { //Edit half position
-      waitingMessage();
       retrieveEepromNumber(editingBay+firstSlaveAddress,halfPos,retrievedEepromValue);
       //char charBuffer[17];
     } else { //Edit baud rate
-      waitingMessage();
       retrieveEepromNumber(editingBay+firstSlaveAddress,eBaudRate,retrievedEepromValue);
     }
   }

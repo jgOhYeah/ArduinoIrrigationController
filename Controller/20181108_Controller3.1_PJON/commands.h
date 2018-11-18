@@ -21,3 +21,12 @@
 #define bayHalf 2
 #define bayOpen 3
 #define bayNotPresent 4
+
+//Error codes
+#define errInvalidAddress 50
+#define errPacketLength 51
+#define errUnkownCommand 52
+#define errUnkownParameters 53
+#define errOutsideRange 54
+#define errUnexpectedPacket 55
+

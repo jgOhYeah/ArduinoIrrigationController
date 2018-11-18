@@ -127,3 +127,21 @@ bool outsideRange(unsigned long number, unsigned long minimum, unsigned long max
     return false;
   }
 }
+void errorHandler (uint8_t code, uint16_t data, void *custom_pointer) {
+  errorHandlerLong(code,(unsigned long) data,custom_pointer); //Make the PJON errors work
+}
+void errorHandlerLong (uint8_t code, unsigned long data, void *custom_pointer) {
+#ifdef serialDebug
+  Serial.println();
+  Serial.print(F("ERROR:\tError Code: "));
+  Serial.print(code);
+  Serial.print(F("\tData: "));
+  Serial.println(data);
+#endif
+  for(byte i = 0; i < 5; i++) { //Flash a led a bit so that it is obvious something is wrong
+    digitalWrite(LED_BUILTIN,HIGH);
+    delay(100);
+    digitalWrite(LED_BUILTIN,LOW);
+    delay(100);
+  }
+}

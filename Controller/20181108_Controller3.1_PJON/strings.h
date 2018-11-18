@@ -38,11 +38,10 @@ const char stringBaud[] PROGMEM = "Baud";
 const char stringRate[] PROGMEM = " Rate";
 
 //Error Strings
-const char lengthString[] PROGMEM = "Length: ";
-const char contentTooLong[] PROGMEM = "Msg too long.";
-const char bufferTooLong[] PROGMEM = "Packet Buffer full.";
+const char stringPJON[] PROGMEM = "PJON";
+const char stringErrorCode[] PROGMEM = " Error, Code: ";
 const char noReply[] PROGMEM = " Disconnected";
-const char unknownError[] PROGMEM = "Unkown Error: ";
-const char packetErrorString[] PROGMEM = "Packet Error, ID: ";
-const char invalidAddressString[] PROGMEM = "Invalid Address: ";
+const char stringUnkown[] PROGMEM = "Unkown";
+const char stringPacket[] PROGMEM = "Packet";
+const char stringData[] PROGMEM = " Data: ";
 

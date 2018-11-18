@@ -24,13 +24,13 @@ const char softwareVersion[] PROGMEM = " V3.1";
 //Stuff for the multiple pressing of the buttons - only sometimes used.
 #define btnInitialDelay 1500
 #define btnRepeatDelay 100
+bool buttonsEnabled = true;
+#define BTN_ENABLE_CHECK() if(!buttonsEnabled) return
 
 #define startDelay 2000
 #define replyDelay 3000
 char charsToSend[3]; //For some reason this cannot be a local variable.
-//Error codes
-#define invalidAddress 50
-#define packetError 51
+
 
 //Variables and strings
 byte bayStatus[numberOfDevices];

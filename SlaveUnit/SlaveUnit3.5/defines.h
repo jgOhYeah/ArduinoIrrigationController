@@ -29,11 +29,6 @@ unsigned long timeAtOpen = 0;
 #define bayToHalf 2
 char callbackOperation = bayNothing;
 
-//ERROR Codes
-#define invalidAddress 50
-#define packetError 51
-#define unrecognisedCommand 52
-
 //ADDRESSES OF VALUES STORED IN EEPROM
 //Longs take 4 bytes, ints take 2 and bytes take 1
 #define addressAddress 0

@@ -46,13 +46,6 @@ void serialDelay(unsigned long waitTime) {
 }
 //Function that handles and displays errors. Either called by PJON or manually
 void errorHandler(uint8_t code, uint16_t data, void *custom_pointer) {
-#ifdef serialDebug
-  Serial.println();
-  Serial.print(F("ERROR:\tError Code: "));
-  Serial.print(code);
-  Serial.print(F("\tData: "));
-  Serial.print(data);
-#endif
   digitalWrite(LED_BUILTIN,HIGH);
   byte tempScreen = currentScreen; //Done this so can set the current screen back to what it was before it is changed.
   if(currentScreen == errorScreen) { //Default to the main screen if this was already on the error screen
@@ -64,11 +57,7 @@ void errorHandler(uint8_t code, uint16_t data, void *custom_pointer) {
   runningTime(completeErrorMsg);
   strcat(completeErrorMsg," ");
   switch(code) {
-    case PJON_CONNECTION_LOST: {
-#ifdef serialDebug
-      Serial.print(F("\tAddress: "));
-      Serial.print(byte(bus.packets[data].content[0]));
-#endif
+    case PJON_CONNECTION_LOST: { //This is the most likely error, so give a bit more explaination
       bayStatus[byte(bus.packets[data].content[0])-firstSlaveAddress] = bayNotPresent; //Update the array of bay statuses to be disconnected.
       //Build the error message
       //Copy "all" to the string.
@@ -99,46 +88,36 @@ void errorHandler(uint8_t code, uint16_t data, void *custom_pointer) {
       //0000:00 Bays 1,2,3,4,5,6,7, Disconnected
       break;
     }
-    case PJON_PACKETS_BUFFER_FULL: { //If the master is trying to send or recieve more data at a higher rate than the bus is capable. Should not be an issue once set up.
-      strcat_P(completeErrorMsg, bufferTooLong);
-      strcat_P(completeErrorMsg, lengthString);
-      //char charBuffer[5]; //Just to be sure there is enough space (buffer would have to be bigger than total ram in an Atmega328p to overflow >9999 bytes)
-      itoa(data,charBuffer,10);
-      strcat(completeErrorMsg,charBuffer);
-      break;
-    }
+    case PJON_PACKETS_BUFFER_FULL: //If the master is trying to send or recieve more data at a higher rate than the bus is capable. Should not be an issue once set up.
     case PJON_CONTENT_TOO_LONG: {
-      strcat_P(completeErrorMsg, contentTooLong);
-      strcat_P(completeErrorMsg, lengthString);
-      //char charBuffer[5]; //Just to be sure there is enough space (buffer would have to be bigger than total ram in an Atmega328p to overflow >9999 bytes)
-      itoa(data,charBuffer,10);
-      strcat(completeErrorMsg,charBuffer);
+      strcat_P(completeErrorMsg, stringPJON);
       break;
     }
-    case invalidAddress: {
-      strcat_P(completeErrorMsg, invalidAddressString);
-      //char charBuffer[5];
-      itoa(data,charBuffer,10);
-      strcat(completeErrorMsg,charBuffer);
-      break;
-    }
-    case packetError: {
-      strcat_P(completeErrorMsg, packetErrorString);
-      //char charBuffer[5];
-      itoa(data,charBuffer,10);
-      strcat(completeErrorMsg,charBuffer);
+    case errInvalidAddress: //Generic errors and error checking
+    case errPacketLength:
+    case errUnkownCommand:
+    case errUnkownParameters:
+    case errOutsideRange:
+    case errUnexpectedPacket: {
+      strcat_P(completeErrorMsg, stringPacket);
       break;
     }
     default: {
-      strcat_P(completeErrorMsg, unknownError);
-      //char charBuffer[5]; //Just to be sure there is enough space (buffer would have to be bigger than total ram in an Atmega328p to overflow >9999 bytes)
-      itoa(data,charBuffer,10);
-      strcat(completeErrorMsg,charBuffer);
-      //UnkownErrorMessage
+      strcat_P(completeErrorMsg, stringUnkown);
+      break;
     }
+  }
+  if(code != PJON_CONNECTION_LOST) { //Only bother to add the error code and associated data if the error is not a not connected error.
+    strcat_P(completeErrorMsg, stringErrorCode);
+    itoa(code,charBuffer,10);
+    strcat(completeErrorMsg,charBuffer);
+    strcat_P(completeErrorMsg, stringData);
+    itoa(data,charBuffer,10);
+    strcat(completeErrorMsg,charBuffer);
   }
 #ifdef serialDebug
   Serial.println();
+  Serial.println(completeErrorMsg);
 #endif
   //Swap to the error screen
   currentScreen = tempScreen;

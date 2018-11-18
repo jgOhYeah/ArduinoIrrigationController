@@ -1,18 +1,3 @@
-void errorHandler (uint8_t code, uint16_t data, void *custom_pointer) {
-#ifdef serialDebug
-  Serial.println();
-  Serial.print(F("ERROR:\tError Code: "));
-  Serial.print(code);
-  Serial.print(F("\tData: "));
-  Serial.println(data);
-#endif
-  for(byte i = 0; i < 5; i++) { //Flash a led a bit so that it is obvious something is wrong
-    digitalWrite(LED_BUILTIN,HIGH);
-    delay(100);
-    digitalWrite(LED_BUILTIN,LOW);
-    delay(100);
-  }
-}
 void informMaster(byte address) {
   char msgToSend[2] = {overwriteStatus,bayStatus};
   bus.send(address,msgToSend,2);
@@ -25,11 +10,11 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
   if(packet_info.header & PJON_TX_INFO_BIT) {
     senderId = packet_info.sender_id;
   } else { //We don't know who they are, so the packet is not much use.
-    errorHandler(invalidAddress,256,NULL); //256 is an address that I will not use, so is dud.
+    errorHandler(errInvalidAddress,256,NULL); //256 is an address that I will not use, so is dud.
     return; //Stop execution there and don't continue.
   }
   //Check that the packet has at least an instruction.
-  if(isLengthError(length,1,false,senderId)) {
+  if(isLengthError(length,1,false)) {
     return; //Stop execution there and don't continue.
   }
   //See what the message tells us to do.
@@ -41,7 +26,7 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
       break;
     }
     case setStatus: {
-      if(isLengthError(length,2,false,senderId)) {
+      if(isLengthError(length,2,false)) {
         return; //Stop execution there and don't continue.
       }
       updateBay(payload[1]);
@@ -55,10 +40,9 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
       break;
     }
     case readEeprom: { //Remotely read settings in the bay
-      if(isLengthError(length,2,false,senderId)) {
+      if(isLengthError(length,2,false)) {
         return; //Stop execution there and don't continue.
       }
-      #warning "I am about to declare a byte array as a char in order to send it. This might produce unwanted results"
       char charBuffer[7]; //A buffer to temporarily store the character buffer.
       byte charsToSend = 3; //The number of chars that will be sent in the packet.
       switch(payload[1]) { //Copy the values into the char array.
@@ -74,7 +58,7 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
         }
         case baudRate: {
           charsToSend = 6;
-          longToArray(charBuffer,2,readULong(serialBaudAddress));
+          longToArray(charBuffer,2,(byte*)readULong(serialBaudAddress));
           break;
         }
         case dTravelSpeed: {
@@ -89,7 +73,7 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
         }
         default: {
           //A value has been requested that this version does not support.
-          errorHandler(packetError,senderId,NULL);
+          errorHandler(errUnkownParameters,payload[1],NULL);
           return;
         }
       }
@@ -101,13 +85,13 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
       break;
     }
     case setEeprom: { //A command to remotely set the settings in the bay. THIS IS A SECURITY ISSUE IF THE NETWORK IS TO BE EXPOSED TO THE WIDER WORLD!!! (but it's convenient)
-      if(isLengthError(length,2,false,senderId)) {
+      if(isLengthError(length,2,false)) {
         return; //Stop execution there and don't continue.
       }
       switch (payload[1]) {
         case halfPos:
         case bAddress: {//1 byte
-          if(isLengthError(length,3,true,senderId)) {
+          if(isLengthError(length,3,true)) {
             return; //Stop execution there and don't continue.
           }
           byte maximumAccepted = 255;
@@ -115,7 +99,7 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
             maximumAccepted = 99;
           }
           if(outsideRange(payload[2],1,maximumAccepted)) {
-            errorHandler(packetError,senderId,NULL);
+            errorHandler(errOutsideRange,payload[2],NULL);
             return;
           }
           if(payload[1] == halfPos) { //If the setting is not a bay time, set the range to be the accepted serial values.
@@ -149,7 +133,7 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
         case baudRate: //Write any of the 4 byte versions using the same code with if statements to separate if needed.
         case dTravelSpeed: //4 bytes
         case uTravelSpeed: { //4 bytes
-          if(isLengthError(length,6,true,senderId)) {
+          if(isLengthError(length,6,true)) {
             return; //Stop execution there and don't continue.
           }
           unsigned long number = arrayToLong(payload,2); //Convert the 4 bytes sent into an unsigned long.
@@ -160,7 +144,7 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
             maximumAccepted = maxSerialBaud;
           }
           if(outsideRange(number,minimumAccepted,maximumAccepted)) { //Now check the range
-            errorHandler(packetError,senderId,NULL);
+            errorHandlerLong(errOutsideRange,number,NULL);
             return;
           }
           switch(payload[1]) { //Now is the time that we want to treat them all differently
@@ -184,7 +168,7 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
           }
           downTravelSpeed = number;*/
         default: { //Unrecognised properties
-          errorHandler(packetError,senderId,NULL);
+          errorHandler(errUnkownParameters,payload[1],NULL);
           return;
         }
       }
@@ -192,7 +176,7 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
       break;
     }
     default: {
-      errorHandler(unrecognisedCommand,payload[0],NULL);
+      errorHandler(errUnkownCommand,payload[0],NULL);
     }
   }
 }
@@ -216,9 +200,9 @@ void setBaudRate() {
 }
 
 //Throws an error if the length is below a certain number or the length is not equal to a number if notEqualTo is true.
-bool isLengthError(unsigned int length, unsigned int compareVal, bool notEqualTo,byte senderId) {
+bool isLengthError(unsigned int length, unsigned int compareVal, bool notEqualTo) {
   if((length < compareVal) || ((length != compareVal) && notEqualTo)) {
-    errorHandler(packetError,senderId,NULL);
+    errorHandler(errPacketLength,length,NULL);
     return true; //Stop execution there and don't continue.
   }
   return false;

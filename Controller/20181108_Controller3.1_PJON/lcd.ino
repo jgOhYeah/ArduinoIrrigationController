@@ -17,6 +17,7 @@ void setupLcd() {
 }
 
 void changeScreen(byte nextMode, byte previousMode) {
+  buttonsEnabled = true; //Reenable the buttons if they have been disabled
   previousScreen = previousMode;
   currentScreen = nextMode;
  //When Changing screen
