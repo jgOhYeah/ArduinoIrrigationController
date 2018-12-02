@@ -1,3 +1,4 @@
+
 void checkForSettings() {
   if(button.isPressed()) { //Was the button pressed on startup?
     ALL_LEDS(HIGH);
@@ -279,6 +280,8 @@ void printCurrentSettings() {
   Serial.println();
 
   #define compiledDatetime "This software was compiled at " __TIME__ " on " __DATE__ "."
+  #define fullSoftwareVers "Software version: " softwareVersion
+  Serial.println(F(fullSoftwareVers));
   Serial.println(F(compiledDatetime));
   Serial.println(F("For more news, information, updates and improvements, go to \"https://github.com/jgOhYeah/ArduinoIrrigationController\"."));
   //A message that people hopefully read before they stuff things up about how to get this communicating again :)

@@ -1,3 +1,5 @@
+//Software Version of the slave
+#define softwareVersion " V3.5 test"
 #define masterId 255
 byte myId; //44 is bay 5, 45 is bay 6... 40 is bay 1
 //#define defaultBaudRate 9600 //Default baud rate to reset the value stored in eeprom to.
