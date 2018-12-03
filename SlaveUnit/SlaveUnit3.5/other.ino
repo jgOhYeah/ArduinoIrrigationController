@@ -86,7 +86,12 @@ void checkCallbacks() {
   }
 }
 //#error "Stuff to do to flash leds here!"
-void flashLeds(byte led, unsigned int timebase) {
+//leds is a mask with the various leds selected xxxxxuhd
+//x = don't care
+//u = up led
+//h = half led
+//d = down led
+void flashLeds(byte leds, unsigned int timebase,byte mode) {
   
 }
 void updateLeds() {

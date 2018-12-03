@@ -43,3 +43,9 @@ char callbackOperation = bayNothing;
 //Leds
 #define fastFlash 100
 #define slowFlash 1000
+#define ledsOn 0
+#define ledsOff 1
+#define ledsFlash 2
+#define ledsChase 3
+
+#define ALL_LEDS(a) digitalWrite(upLed,a); digitalWrite(downLed,a); digitalWrite(halfLed,a)
