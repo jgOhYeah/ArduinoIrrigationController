@@ -41,22 +41,5 @@ char callbackOperation = bayNothing;
 
 
 //Leds
-//#error "Defines for leds need sorting out!"
-#define ALL_LEDS(state) digitalWrite(upLed,state); digitalWrite(halfLed,state); digitalWrite(downLed,state)
-#define flashAllOn 0
-#define flashAllOff 1
-#define flashAllFlash 2
-#define flashAllScan 3
-#define flashUpOn 4
-#define flashUpOff 5
-#define flashUpFlash 6
-#define flashHalfOn 7
-#define flashHalfOff 8
-#define flashHalfFlash 9
-#define flashDownOn 10
-#define flashDownOff 11
-#define flashDownFlash 12
-//Count rates to skip
-#define flashDutyQuarter 0
-#define flashDutyHalf 1
-#define flashDuty3Quarter 2
+#define fastFlash 100
+#define slowFlash 1000

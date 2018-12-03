@@ -86,23 +86,11 @@ void checkCallbacks() {
   }
 }
 //#error "Stuff to do to flash leds here!"
-void flashLeds(byte mode) {
-  static unsigned long startTime = 0;
-  static byte position = 0; //Position in sequence
+void flashLeds(byte led, unsigned int timebase) {
   
-  bool timeThisRound = false;
-  if(millis() - startTime >= ledFlashSpeed) {
-    startTime = millis();
-    timeThisRound = true;
-  }
-  switch(mode) {
-    case flashAllOn:
-      ALL_LEDS(HIGH);
-      break;
-    case flashAllOff:
-      ALL_LEDS(LOW);
-      break;
-  }
+}
+void updateLeds() {
+  
 }
 //The arrays in these functions must be at least 4 bytes long.
 unsigned long arrayToLong(byte * arrayToConvert, byte startIndex) {
