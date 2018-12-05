@@ -43,9 +43,27 @@ char callbackOperation = bayNothing;
 //Leds
 #define fastFlash 100
 #define slowFlash 1000
-#define ledsOn 0
-#define ledsOff 1
-#define ledsFlash 2
+#define ledsSteady 0
+#define ledsFast 1
+#define ledsSlow 2
 #define ledsChase 3
+
+byte flashMode = ledsOn;
+byte ledStates = 0;
+/* ledStates structure in binary:
+ * ZZYYYXXX
+ * Where:
+ *   ZZ is the mode the leds should be in.
+ *   YYY is the current state of each led (up, half, down in that order - 0 = off, 1 = on) - also the initial state
+ *   XXX is if the led state should be changed when updated. - In chasing mode this is also the stage that the sequence is up to.
+ * Examples:
+ *   ZZ YYY XXX
+ *   00 100 000 = The LEDs on steady, Up led starting on, both others off, do not change the state at any time.
+ *   01 010 110 = The LEDs flashing fast, Up and Down LEDs starting off while the Half LED starting on, Only update the Up and Half led when it is time to change their state (Down led stays off)
+ *   10 111 111 = Slow flash, All LEDs starting on, all LEDs flashing.
+ *   11 111 111 = Chasing - All LEDs involved.
+ */
+unsigned int ledFlashSpeed = fastFlash;
+unsigned long ledCallback = 0; //time that the led driving function needs to next change the led states
 
 #define ALL_LEDS(a) digitalWrite(upLed,a); digitalWrite(downLed,a); digitalWrite(halfLed,a)
