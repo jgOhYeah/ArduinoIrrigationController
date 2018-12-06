@@ -85,13 +85,20 @@ void checkCallbacks() {
     }
   }
 }
-//#error "Stuff to do to flash leds here!"
-//leds is a mask with the various leds selected xxxxxuhd
-//x = don't care
-//u = up led
-//h = half led
-//d = down led
-void flashLeds(byte leds, unsigned int timebase,byte mode) {
+/* ledStates structure in binary:
+ * ZZYYYXXX
+ * Where:
+ *   ZZ is the mode the leds should be in.
+ *   YYY is the current state of each led (up, half, down in that order - 0 = off, 1 = on) - also the initial state
+ *   XXX is if the led state should be changed when updated. - In chasing mode this is also the stage that the sequence is up to.
+ * Examples:
+ *   ZZ YYY XXX
+ *   00 100 000 = The LEDs on steady, Up led starting on, both others off, do not change the state at any time.
+ *   01 010 110 = The LEDs flashing fast, Up and Down LEDs starting off while the Half LED starting on, Only update the Up and Half led when it is time to change their state (Down led stays off)
+ *   10 111 111 = Slow flash, All LEDs starting on, all LEDs flashing.
+ *   11 111 111 = Chasing - All LEDs involved.
+ */
+void flashLeds(byte states) {
   
 }
 void updateLeds() {

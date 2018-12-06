@@ -1,0 +1,1 @@
+#define callbackBufferFull 255
