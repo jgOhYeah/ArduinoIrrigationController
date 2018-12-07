@@ -1,16 +1,16 @@
 void loadSettings() {
-  myId = EEPROM.read(addressAddress);
-  halfwayPos = EEPROM.read(halfwayPosAddress);
-  downTravelSpeed = readULong(downTravelSpeedAddress);
-  upTravelSpeed = readULong(upTravelSpeedAddress);
+  myId = EEPROM.read(EEPROM_ADDRESS);
+  halfwayPos = EEPROM.read(EEPROM_HALFWAY_POS);
+  downTravelSpeed = readULong(EEPROM_DOWN_TRAVEL_SPEED);
+  upTravelSpeed = readULong(EEPROM_UP_TRAVEL_SPEED);
   calculateSettings();
 }
 //TODO: SaveSettings does not work!
 void saveSettings() { //Using update so do not write to settings that have not changed
-  EEPROM.update(addressAddress,myId);
-  EEPROM.update(halfwayPosAddress,halfwayPos);
-  writeULong(downTravelSpeedAddress,downTravelSpeed);
-  writeULong(upTravelSpeedAddress,upTravelSpeed);
+  EEPROM.update(EEPROM_ADDRESS,myId);
+  EEPROM.update(EEPROM_HALFWAY_POS,halfwayPos);
+  writeULong(EEPROM_DOWN_TRAVEL_SPEED,downTravelSpeed);
+  writeULong(EEPROM_UP_TRAVEL_SPEED,upTravelSpeed);
   calculateSettings();
 }
 void calculateSettings() {

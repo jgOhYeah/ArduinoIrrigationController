@@ -18,7 +18,7 @@
 //Bay states
 #define bayUnknown 0
 #define bayShut 1
-#define bayHalf 2
+#define BAY_HALF 2
 #define bayOpen 3
 #define bayNotPresent 4
 

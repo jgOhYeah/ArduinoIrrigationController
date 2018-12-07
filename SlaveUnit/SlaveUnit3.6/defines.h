@@ -14,7 +14,7 @@ char bayStatus = bayUnknown;
 
 #define MAX_BAY_TIME 43383508 //(2^32-1)/99 is the largest number you can have before it possibly overflows
 #define MIN_SERIAL_BAUD 50
-#define maxSerialBaud 2000000
+#define MAX_SERIAL_BAUD 2000000
 byte halfwayPos; //25 Percent from the bottom
 unsigned long downTravelSpeed; //Default 26000
 unsigned long upTravelSpeed; //Default 24000
@@ -26,29 +26,29 @@ unsigned long startDelayTime = 0;
 unsigned long callbackTime = 0;
 unsigned long timeAtDown = 0;
 unsigned long timeAtOpen = 0;
-#define bayNothing 0
-#define bayHoming 1
-#define bayToHalf 2
-char callbackOperation = bayNothing;
+#define BAY_NOTHING 0
+#define BAY_HOMING 1
+#define BAY_TO_HALF 2
+char callbackOperation = BAY_NOTHING;
 
 //ADDRESSES OF VALUES STORED IN EEPROM
 //Longs take 4 bytes, ints take 2 and bytes take 1
-#define addressAddress 0
-#define halfwayPosAddress 1
-#define downTravelSpeedAddress 2
-#define upTravelSpeedAddress 6
-#define serialBaudAddress 10
+#define EEPROM_ADDRESS 0
+#define EEPROM_HALFWAY_POS 1
+#define EEPROM_DOWN_TRAVEL_SPEED 2
+#define EEPROM_UP_TRAVEL_SPEED 6
+#define EEPROM_SERIAL_BAUD 10
 
 
 //Leds
-#define fastFlash 100
-#define slowFlash 1000
-#define ledsSteady 0
-#define ledsFast 1
-#define ledsSlow 2
-#define ledsChase 3
+#define FAST_FLASH 100
+#define SLOW_FLASH 1000
+#define LEDS_STEADY 0
+#define LEDS_FAST 1
+#define LEDS_SLOW 2
+#define LEDS_CHASE 3
 
-byte flashMode = ledsSteady;
+byte flashMode = LEDS_STEADY;
 byte ledStates = 0;
 /* ledStates structure in binary:
  * ZZYYYXXX
@@ -63,7 +63,7 @@ byte ledStates = 0;
  *   10 111 111 = Slow flash, All LEDs starting on, all LEDs flashing.
  *   11 111 111 = Chasing - All LEDs involved.
  */
-unsigned int ledFlashSpeed = fastFlash;
+unsigned int ledFlashSpeed = FAST_FLASH;
 unsigned long ledCallback = 0; //time that the led driving function needs to next change the led states
 
 #define ALL_LEDS(a) digitalWrite(upLed,a); digitalWrite(downLed,a); digitalWrite(halfLed,a)

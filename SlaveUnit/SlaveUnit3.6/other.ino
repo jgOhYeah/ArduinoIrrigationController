@@ -1,5 +1,5 @@
 void updateBay(char newStatus) {
-  callbackOperation = bayNothing;
+  callbackOperation = BAY_NOTHING;
   switch(newStatus) {
     case bayShut:
       closeBayMotor();
@@ -8,7 +8,7 @@ void updateBay(char newStatus) {
       digitalWrite(upLed,LOW);
       timeAtDown = millis();
       break;
-    case bayHalf:
+    case BAY_HALF:
       closeBayMotor();
       digitalWrite(downLed,LOW);
       digitalWrite(halfLed,HIGH);
@@ -23,10 +23,10 @@ void updateBay(char newStatus) {
         Serial.print(F("\tBay has been shutting for: "));
         Serial.println(timeShut);
         if(millis() - timeAtOpen >= upTravelSpeed && timeShut <= halfDownTime) { //Before we started stuffing various settings up, was the outlet previously at the top and has the outlet traveled past the half way point?
-          callbackOperation = bayToHalf;
+          callbackOperation = BAY_TO_HALF;
           callbackTime = halfDownTime - timeShut;
         } else {
-          callbackOperation = bayHoming;
+          callbackOperation = BAY_HOMING;
           if(timeShut >= downTravelSpeed) { //Know that the bay must be at the bottom
             callbackTime = 0;
           } else {
@@ -34,7 +34,7 @@ void updateBay(char newStatus) {
           }
         }
       } else {
-        callbackOperation = bayHoming;
+        callbackOperation = BAY_HOMING;
         callbackTime = downTravelSpeed; //We can't be sure about the position of much else, so do the full amount just to be safe.
       }
       startDelayTime = millis();
@@ -66,20 +66,20 @@ void checkButtons() {
 void checkCallbacks() {
   if(millis() - startDelayTime >= callbackTime) {
     switch(callbackOperation) {
-      case bayHoming: {
+      case BAY_HOMING: {
         Serial.print(F("Callback called. Operation: "));
         Serial.println(byte(callbackOperation));
         openBayMotor();
-        callbackOperation = bayToHalf;
+        callbackOperation = BAY_TO_HALF;
         callbackTime = halfUpTime;
         startDelayTime = millis();
         break;
       }
-      case bayToHalf: {
+      case BAY_TO_HALF: {
         Serial.print(F("Callback called. Operation: "));
         Serial.println(byte(callbackOperation));
         stopBayMotor();
-        callbackOperation = bayNothing;
+        callbackOperation = BAY_NOTHING;
         break;
       }
     }

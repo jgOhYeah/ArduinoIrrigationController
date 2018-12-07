@@ -58,7 +58,7 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
         }
         case baudRate: {
           charsToSend = 6;
-          longToArray(charBuffer,2,(byte*)readULong(serialBaudAddress));
+          longToArray(charBuffer,2,(byte*)readULong(EEPROM_SERIAL_BAUD));
           break;
         }
         case dTravelSpeed: {
@@ -141,7 +141,7 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
           unsigned long maximumAccepted = MAX_BAY_TIME;
           if(payload[1] == baudRate) { //If the setting is not a bay time, set the range to be the accepted serial values.
             minimumAccepted = MIN_SERIAL_BAUD;
-            maximumAccepted = maxSerialBaud;
+            maximumAccepted = MAX_SERIAL_BAUD;
           }
           if(outsideRange(number,minimumAccepted,maximumAccepted)) { //Now check the range
             errorHandlerLong(errOutsideRange,number,NULL);
@@ -149,7 +149,7 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
           }
           switch(payload[1]) { //Now is the time that we want to treat them all differently
             case baudRate:
-               writeULong(serialBaudAddress,number); //We are not bothering with saving this value in RAM permenantly as it is only used at startup and debugging.
+               writeULong(EEPROM_SERIAL_BAUD,number); //We are not bothering with saving this value in RAM permenantly as it is only used at startup and debugging.
               break;
             case dTravelSpeed:
               downTravelSpeed = number;
@@ -195,7 +195,7 @@ void setupSerial() {
 }
 void setBaudRate() {
   Serial.flush();
-  Serial.begin(readULong(serialBaudAddress));
+  Serial.begin(readULong(EEPROM_SERIAL_BAUD));
   //Serial.begin(9600); //Temporary while sorting serial settings out
 }
 

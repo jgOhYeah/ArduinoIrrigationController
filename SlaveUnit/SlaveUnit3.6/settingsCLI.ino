@@ -54,10 +54,10 @@ void checkForSettings() {
         button.checkButton(); //must be called before button.longPress()
         if(button.longPress(LONG_PRESS_TIME) && btnNotPressed) { //If the button has been pressed for a long time, reset the eeprom value for the serial baud rate (safety measure)
           btnNotPressed = false;
-          unsigned long oldBaud = readULong(serialBaudAddress);
+          unsigned long oldBaud = readULong(EEPROM_SERIAL_BAUD);
           //Reset the eeprom baud rate
           Serial.println(F("About to set the baud rate back to 9600.")); //A quick message for anyone listening
-          writeULong(serialBaudAddress,defaultBaudRate);
+          writeULong(EEPROM_SERIAL_BAUD,defaultBaudRate);
           setBaudRate();
           Serial.print(F("Baud rate is now "));
           Serial.print(defaultBaudRate);
@@ -179,9 +179,9 @@ void checkForSettings() {
         case '7': {//Baud rate
           Serial.print(F("The baud rate used for serial communications (with the rs485 bus and this settings menu) "));
           Serial.print(F("is currently "));
-          Serial.print(readULong(serialBaudAddress));
+          Serial.print(readULong(EEPROM_SERIAL_BAUD));
           Serial.println(F("."));
-          long number = acceptNewValue(MIN_SERIAL_BAUD,maxSerialBaud); //Atmega 328ps can get up to 2Mbps, although I'm not sure that the network will be able to! Interesting read: https://arduino.stackexchange.com/questions/296/how-high-of-a-baud-rate-can-i-go-without-errors
+          long number = acceptNewValue(MIN_SERIAL_BAUD,MAX_SERIAL_BAUD); //Atmega 328ps can get up to 2Mbps, although I'm not sure that the network will be able to! Interesting read: https://arduino.stackexchange.com/questions/296/how-high-of-a-baud-rate-can-i-go-without-errors
           if(number > 0) {
             Serial.print(F("You are about to change the baud rate to "));
             Serial.print(number);
@@ -199,7 +199,7 @@ void checkForSettings() {
             Serial.print(F("sure you want to do this?"));
             if(confirmationDialog()) {
               //We got a yes
-              writeULong(serialBaudAddress,number); //Save it 
+              writeULong(EEPROM_SERIAL_BAUD,number); //Save it 
               Serial.print(F("Do you want to change the baud rate now? Otherwise, the new"));
               Serial.print(F(" baud rate will be set the next time this bay controller is reset"));
               if(confirmationDialog()) {
@@ -251,7 +251,7 @@ void printCurrentSettings() {
   Serial.println();
   Serial.println(F("Current settings are as follows:"));
   Serial.print(F(" - Serial Baud Rate: "));
-  Serial.println(readULong(serialBaudAddress));
+  Serial.println(readULong(EEPROM_SERIAL_BAUD));
   Serial.print(F(" - Bay address: "));
   Serial.println(myId);
   Serial.print(F(" - Time (in milliseconds) taken for bay to travel ")); //Hopefully the compiler recognises that there are shared strings here and saves memory.
