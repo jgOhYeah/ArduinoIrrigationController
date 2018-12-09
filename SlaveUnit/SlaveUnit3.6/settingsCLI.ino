@@ -9,9 +9,9 @@ void checkForSettings() {
       if(millis() - startTime2 >= ledFlashSpeed) {
         startTime2 = millis();
         ledsOn = !ledsOn;
-        digitalWrite(upLed,ledsOn);
-        digitalWrite(halfLed,!ledsOn);
-        digitalWrite(downLed,ledsOn);
+        digitalWrite(PIN_UP_LED,ledsOn);
+        digitalWrite(PIN_HALF_LED,!ledsOn);
+        digitalWrite(PIN_DOWN_LED,ledsOn);
       }
       if(!button.isPressed()) { //If someone lets go of the button, exit
         ALL_LEDS(LOW);
@@ -19,8 +19,8 @@ void checkForSettings() {
       }
     }
     ALL_LEDS(LOW);
-    digitalWrite(rs485rxPin,HIGH); //Disable the rs485 transiever to use the serial port to talk usb.
-    digitalWrite(rs485txPin,LOW);
+    digitalWrite(PIN_RS485_RX,HIGH); //Disable the rs485 transiever to use the serial port to talk usb.
+    digitalWrite(PIN_RS485_TX,LOW);
     //We are now in settings mode
     Serial.setTimeout(SERIAL_TIMEOUT);
     Serial.println(F("Hello, you have just entered settings mode."));
@@ -28,7 +28,7 @@ void checkForSettings() {
     printHelp();
     bool printPrompt = true;
     bool btnNotPressed = false;
-    while(true) { //Run the settings menu unitil told to exit or reset
+    while(true) { //Run the settings menu unitil told to exit or CMD_RESET
       if(printPrompt) {
         Serial.println();
         Serial.println();
@@ -43,24 +43,24 @@ void checkForSettings() {
           ledsOn = !ledsOn;
           digitalWrite(LED_BUILTIN,ledsOn);
           if(buttonPressed) {
-            digitalWrite(upLed,ledsOn);
-            digitalWrite(halfLed,!ledsOn);
-            digitalWrite(downLed,ledsOn);
+            digitalWrite(PIN_UP_LED,ledsOn);
+            digitalWrite(PIN_HALF_LED,!ledsOn);
+            digitalWrite(PIN_DOWN_LED,ledsOn);
           }
         }
         if(!btnNotPressed && !buttonPressed) {
           btnNotPressed = true; //The button must be released before it can be pressed again
         }
         button.checkButton(); //must be called before button.longPress()
-        if(button.longPress(LONG_PRESS_TIME) && btnNotPressed) { //If the button has been pressed for a long time, reset the eeprom value for the serial baud rate (safety measure)
+        if(button.longPress(LONG_PRESS_TIME) && btnNotPressed) { //If the button has been pressed for a long time, CMD_RESET the eeprom value for the serial baud rate (safety measure)
           btnNotPressed = false;
           unsigned long oldBaud = readULong(EEPROM_SERIAL_BAUD);
-          //Reset the eeprom baud rate
+          //CMD_RESET the eeprom baud rate
           Serial.println(F("About to set the baud rate back to 9600.")); //A quick message for anyone listening
-          writeULong(EEPROM_SERIAL_BAUD,defaultBaudRate);
+          writeULong(EEPROM_SERIAL_BAUD,DEFAULT_BAUD_RATE);
           setBaudRate();
           Serial.print(F("Baud rate is now "));
-          Serial.print(defaultBaudRate);
+          Serial.print(DEFAULT_BAUD_RATE);
           Serial.println(F("bps."));
           Serial.print(F("Baud rate was "));
           Serial.print(oldBaud);
@@ -83,7 +83,7 @@ void checkForSettings() {
           Serial.print(F("Are you sure you want to exit settings?"));
           if(confirmationDialog()) {
             Serial.println(F("Exiting settings and returning to normal operation."));
-            digitalWrite(rs485rxPin,LOW); //Re-enable the rs485 transiever to use the serial port to talk usb.
+            digitalWrite(PIN_RS485_RX,LOW); //Re-enable the rs485 transiever to use the serial port to talk usb.
             return;
           }
           break;
@@ -189,10 +189,10 @@ void checkForSettings() {
             Serial.print(F("Are you "));
             Serial.print(F("sure you want to do this?"));
             Serial.println(F(" Changing the baud rate to another value will mean that the settings for the rest of the network will have to be changed to match, as will those of the computer currently connected to this bay."));
-            Serial.println(F("If for some reason you cannot connect to or communicate with this bay after changing the baud rate, reset the baud rate to 9600bps by pressing the button for at least 5 seconds after entering settings mode."));
+            Serial.println(F("If for some reason you cannot connect to or communicate with this bay after changing the baud rate, CMD_RESET the baud rate to 9600bps by pressing the button for at least 5 seconds after entering settings mode."));
             Serial.print(F("The "));
             Serial.print(F("default")); //New
-            Serial.print(F(" baud rate will be set the next time this bay controller is reset"));
+            Serial.print(F(" baud rate will be set the next time this bay controller is CMD_RESET"));
             Serial.println(F("."));
             Serial.print(F("Are you "));
             Serial.print(F("REALLY "));
@@ -201,11 +201,11 @@ void checkForSettings() {
               //We got a yes
               writeULong(EEPROM_SERIAL_BAUD,number); //Save it 
               Serial.print(F("Do you want to change the baud rate now? Otherwise, the new"));
-              Serial.print(F(" baud rate will be set the next time this bay controller is reset"));
+              Serial.print(F(" baud rate will be set the next time this bay controller is CMD_RESET"));
               if(confirmationDialog()) {
                 setBaudRate();
                 Serial.print(F("Baud rate is now "));
-                Serial.print(defaultBaudRate);
+                Serial.print(DEFAULT_BAUD_RATE);
                 Serial.println(F("bps."));
               }
             }
@@ -286,7 +286,7 @@ void printCurrentSettings() {
   Serial.println(F("For more news, information, updates and improvements, go to \"https://github.com/jgOhYeah/ArduinoIrrigationController\"."));
   //A message that people hopefully read before they stuff things up about how to get this communicating again :)
   Serial.print(F("A quick reminder: "));
-  Serial.println(F("If for some reason you cannot connect to or communicate with this bay after changing the baud rate, reset the baud rate to 9600bps by pressing the button for at least 5 seconds after entering settings mode."));
+  Serial.println(F("If for some reason you cannot connect to or communicate with this bay after changing the baud rate, CMD_RESET the baud rate to 9600bps by pressing the button for at least 5 seconds after entering settings mode."));
 }
 //Stuff to receive a number within a range with prompts from the user.
 long acceptNewValue(unsigned long minimum, unsigned long maximum) {

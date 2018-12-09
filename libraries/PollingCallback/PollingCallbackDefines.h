@@ -6,8 +6,8 @@ This file contatins the structs and various default defined values. The values c
 	#define MAX_CALLBACKS 3
 #endif
 
-#ifndef CALLBACK_BUFFER_FULL //The error code (byte) for having run out of space in the buffer for new callbacks (default 255).
-	#define CALLBACK_BUFFER_FULL 255
+#ifndef ERR_CALLBACK_BUFFER_FULL //The error code (byte) for having run out of space in the buffer for new callbacks (default 255).
+	#define ERR_CALLBACK_BUFFER_FULL 255
 #endif
 
 struct callback {

@@ -2,13 +2,13 @@
 #define SOFTWARE_VERSION " V3.6 test"
 #define MASTER_ID 255
 byte myId; //44 is bay 5, 45 is bay 6... 40 is bay 1
-//#define defaultBaudRate 9600 //Default baud rate to reset the value stored in eeprom to.
+//#define DEFAULT_BAUD_RATE 9600 //Default baud rate to CMD_RESET the value stored in eeprom to.
 
 //#define ledFlashSpeed 500
 #define LONG_PRESS_TIME 5000
 #define SERIAL_TIMEOUT 600000 //10 minutes
-//#define enableReset //Do not define this if this code is running on an atmega 328p running the arduino nano bootloader! (arduino uno bootloader is fine)
-char bayStatus = bayUnknown;
+//#define ENABLE_RESET //Do not define this if this code is running on an atmega 328p running the arduino nano bootloader! (arduino uno bootloader is fine)
+char bayStatus = STATE_UNKOWN;
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
@@ -23,13 +23,8 @@ unsigned long halfUpTime; //Will be worked out using values from EEPROM on start
 unsigned long halfDownTime;
 
 unsigned long startDelayTime = 0;
-unsigned long callbackTime = 0;
 unsigned long timeAtDown = 0;
 unsigned long timeAtOpen = 0;
-#define BAY_NOTHING 0
-#define BAY_HOMING 1
-#define BAY_TO_HALF 2
-char callbackOperation = BAY_NOTHING;
 
 //ADDRESSES OF VALUES STORED IN EEPROM
 //Longs take 4 bytes, ints take 2 and bytes take 1
@@ -41,15 +36,16 @@ char callbackOperation = BAY_NOTHING;
 
 
 //Leds
-#define FAST_FLASH 100
-#define SLOW_FLASH 1000
+#define FAST_FLASH_RATE 100
+#define SLOW_FLASH_RATE 1000
+
 #define LEDS_STEADY 0
 #define LEDS_FAST 1
 #define LEDS_SLOW 2
 #define LEDS_CHASE 3
 
-byte flashMode = LEDS_STEADY;
 byte ledStates = 0;
+byte ledCallback = 0;
 /* ledStates structure in binary:
  * ZZYYYXXX
  * Where:
@@ -62,8 +58,6 @@ byte ledStates = 0;
  *   01 010 110 = The LEDs flashing fast, Up and Down LEDs starting off while the Half LED starting on, Only update the Up and Half led when it is time to change their state (Down led stays off)
  *   10 111 111 = Slow flash, All LEDs starting on, all LEDs flashing.
  *   11 111 111 = Chasing - All LEDs involved.
- */
-unsigned int ledFlashSpeed = FAST_FLASH;
-unsigned long ledCallback = 0; //time that the led driving function needs to next change the led states
+*/
 
-#define ALL_LEDS(a) digitalWrite(upLed,a); digitalWrite(downLed,a); digitalWrite(halfLed,a)
+#define ALL_LEDS(a) digitalWrite(PIN_UP_LED,a); digitalWrite(PIN_DOWN_LED,a); digitalWrite(PIN_HALF_LED,a)

@@ -10,7 +10,7 @@
 uint8_t bus_id[] = {0, 0, 0, 1};
 // <Strategy name> bus(selected device id)
 PJON<ThroughSerial> bus(bus_id, 44); //44 is the default id and will be overwritten by the one from EEPROM
-ButtonOnPress button(buttonPin,150,LOW,false);
+ButtonOnPress button(PIN_BUTTON,150,LOW,false);
 PollingCallback callback; //Make a callback object to manage the callbacks.
 
 void setup() {
@@ -27,5 +27,5 @@ void loop() {
   bus.update();
   bus.receive();
   checkButtons();
-  checkCallbacks();
+  callback.check();
 }

@@ -1,20 +1,19 @@
 void updateBay(char newStatus) {
-  callbackOperation = BAY_NOTHING;
   switch(newStatus) {
-    case bayShut:
+    case STATE_SHUT:
       closeBayMotor();
-      digitalWrite(downLed,HIGH);
-      digitalWrite(halfLed,LOW);
-      digitalWrite(upLed,LOW);
+      digitalWrite(PIN_DOWN_LED,HIGH);
+      digitalWrite(PIN_HALF_LED,LOW);
+      digitalWrite(PIN_UP_LED,LOW);
       timeAtDown = millis();
       break;
-    case BAY_HALF:
+    case STATE_HALF:
       closeBayMotor();
-      digitalWrite(downLed,LOW);
-      digitalWrite(halfLed,HIGH);
-      digitalWrite(upLed,LOW);
+      digitalWrite(PIN_DOWN_LED,LOW);
+      digitalWrite(PIN_HALF_LED,HIGH);
+      digitalWrite(PIN_UP_LED,LOW);
       Serial.println(F("Bay at half called"));
-      if(bayStatus == bayShut) {
+      if(bayStatus == STATE_SHUT) {
         Serial.println(F("Bay was shut"));
         unsigned long timeShut = millis() - timeAtDown; //TODO: Stuff
         //If was definitely open, then if the time spent shutting is less than half open time.
@@ -23,87 +22,35 @@ void updateBay(char newStatus) {
         Serial.print(F("\tBay has been shutting for: "));
         Serial.println(timeShut);
         if(millis() - timeAtOpen >= upTravelSpeed && timeShut <= halfDownTime) { //Before we started stuffing various settings up, was the outlet previously at the top and has the outlet traveled past the half way point?
-          callbackOperation = BAY_TO_HALF;
-          callbackTime = halfDownTime - timeShut;
+          callback.add(halfDownTime-timeShut,false,stopBayMotor); //Stop the motor at the right time. - It is already moving
         } else {
-          callbackOperation = BAY_HOMING;
-          if(timeShut >= downTravelSpeed) { //Know that the bay must be at the bottom
-            callbackTime = 0;
-          } else {
+          unsigned long callbackTime = 0;
+          if(timeShut < downTravelSpeed) { //The bay is not at the bottom yet, so wait until it gets there
             callbackTime = downTravelSpeed - timeShut; //Delay only the minimum required to garuntee that it is shut
           }
+          callback.add(callbackTime,false,openToHalf); //Reverse the direction of the motor at the right time
         }
       } else {
-        callbackOperation = BAY_HOMING;
-        callbackTime = downTravelSpeed; //We can't be sure about the position of much else, so do the full amount just to be safe.
+        //We can't be sure about the position of much else, so do the full amount just to be safe.
+        callback.add(downTravelSpeed,false,openToHalf); //Reverse the direction of the motor at the right time
       }
       startDelayTime = millis();
       break;
-    case bayOpen:
+    case STATE_OPEN:
       openBayMotor();
-      digitalWrite(downLed,LOW);
-      digitalWrite(halfLed,LOW);
-      digitalWrite(upLed,HIGH);
+      digitalWrite(PIN_DOWN_LED,LOW);
+      digitalWrite(PIN_HALF_LED,LOW);
+      digitalWrite(PIN_UP_LED,HIGH);
       timeAtOpen = millis();
       break;
     default:
-      digitalWrite(downLed,HIGH);
-      digitalWrite(halfLed,HIGH);
-      digitalWrite(upLed,HIGH);
+      digitalWrite(PIN_DOWN_LED,HIGH);
+      digitalWrite(PIN_HALF_LED,HIGH);
+      digitalWrite(PIN_UP_LED,HIGH);
   }
   bayStatus = newStatus;
 }
-void checkButtons() {
-  if(button.checkButton()) { //If the button is pressed
-    char newStatus = bayStatus + 1;
-    if(newStatus > bayOpen) {
-      newStatus = bayShut;
-    }
-    updateBay(newStatus);
-    informMaster(MASTER_ID);
-  }
-}
-void checkCallbacks() {
-  if(millis() - startDelayTime >= callbackTime) {
-    switch(callbackOperation) {
-      case BAY_HOMING: {
-        Serial.print(F("Callback called. Operation: "));
-        Serial.println(byte(callbackOperation));
-        openBayMotor();
-        callbackOperation = BAY_TO_HALF;
-        callbackTime = halfUpTime;
-        startDelayTime = millis();
-        break;
-      }
-      case BAY_TO_HALF: {
-        Serial.print(F("Callback called. Operation: "));
-        Serial.println(byte(callbackOperation));
-        stopBayMotor();
-        callbackOperation = BAY_NOTHING;
-        break;
-      }
-    }
-  }
-}
-/* ledStates structure in binary:
- * ZZYYYXXX
- * Where:
- *   ZZ is the mode the leds should be in.
- *   YYY is the current state of each led (up, half, down in that order - 0 = off, 1 = on) - also the initial state
- *   XXX is if the led state should be changed when updated. - In chasing mode this is also the stage that the sequence is up to.
- * Examples:
- *   ZZ YYY XXX
- *   00 100 000 = The LEDs on steady, Up led starting on, both others off, do not change the state at any time.
- *   01 010 110 = The LEDs flashing fast, Up and Down LEDs starting off while the Half LED starting on, Only update the Up and Half led when it is time to change their state (Down led stays off)
- *   10 111 111 = Slow flash, All LEDs starting on, all LEDs flashing.
- *   11 111 111 = Chasing - All LEDs involved.
- */
-void flashLeds(byte states) {
-  
-}
-void updateLeds() {
-  
-}
+
 //The arrays in these functions must be at least 4 bytes long.
 unsigned long arrayToLong(byte * arrayToConvert, byte startIndex) {
   unsigned long number = 0;
@@ -131,7 +78,7 @@ void errorHandler (uint8_t code, uint16_t data, void *custom_pointer) {
   errorHandlerLong(code,(unsigned long) data,custom_pointer); //Make the PJON errors work
 }
 void errorHandlerLong (uint8_t code, unsigned long data, void *custom_pointer) {
-#ifdef serialDebug
+#ifdef SERIAL_DEBUG
   Serial.println();
   Serial.print(F("ERROR:\tError Code: "));
   Serial.print(code);

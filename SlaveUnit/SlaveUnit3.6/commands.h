@@ -1,31 +1,31 @@
 /*A set of commands and constants that are the same on the master*/
 //Commands
-#define reportStatus 's'
-#define overwriteStatus 'w'
-#define reset 'x'
-#define setStatus 'r'
-#define setEeprom 'm'
-#define readEeprom 'n'
-#define reportEeprom 'o' //The reply message sent to readEeprom
+#define CMD_REPORT_STATUS 's'
+#define CMD_OVERWRITE_STATUS 'w'
+#define CMD_RESET 'x'
+#define CMD_SET_STATUS 'r'
+#define CMD_SET_EEPROM 'm'
+#define CMD_READ_EEPROM 'n'
+#define CMD_REPORT_EEPROM 'o' //The reply message sent to CMD_READ_EEPROM
 
 //EEPROM value codes
-#define bAddress 'a'
-#define halfPos 'b'
-#define uTravelSpeed 'c'
-#define dTravelSpeed 'd'
-#define baudRate 'e'
+#define SETTING_ADDRESS 'a'
+#define SETTING_HALF_POS 'b'
+#define SETTING_UP_SPEED 'c'
+#define SETTING_DOWN_SPEED 'd'
+#define SETTING_BAUD_RATE 'e'
 
 //Bay states
-#define bayUnknown 0
-#define bayShut 1
-#define BAY_HALF 2
-#define bayOpen 3
-#define bayNotPresent 4
+#define STATE_UNKOWN 0
+#define STATE_SHUT 1
+#define STATE_HALF 2
+#define STATE_OPEN 3
+#define STATE_NOT_PRESENT 4
 
 //Error codes
-#define errInvalidAddress 50
-#define errPacketLength 51
-#define errUnkownCommand 52
-#define errUnkownParameters 53
-#define errOutsideRange 54
-#define errUnexpectedPacket 55
+#define ERR_INVALID_ADDRESS 50
+#define ERR_PACKET_LENGTH 51
+#define ERR_UNKOWN_COMMAND 52
+#define ERR_UNKOWN_PARAMETERS 53
+#define ERR_OUTSIDE_RANGE 54
+#define ERR_UNEXPECTED_PACKET 55

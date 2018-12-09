@@ -1,19 +1,19 @@
 //Settings to be edited before uploading
 //Serial Settings
-#define defaultBaudRate 9600 //Default baud rate to reset the value stored in eeprom to.
+#define DEFAULT_BAUD_RATE 9600 //Default baud rate to CMD_RESET the value stored in eeprom to.
 //Debug settings
-#define serialDebug
+#define SERIAL_DEBUG
 //These only print messages if the above is defined
   //#define eepromDebug
   //#define pjonDebug
 
 //Pins
-#define buttonPin 9
-#define upLed 8
-#define halfLed 7
-#define downLed 6
-#define motorA 4
-#define motorB 5
-#define rs485rxPin 3
-#define rs485txPin 2
+#define PIN_BUTTON 9
+#define PIN_UP_LED 8
+#define PIN_HALF_LED 7
+#define PIN_DOWN_LED 6
+#define PIN_MOTOR_A 4
+#define PIN_MOTOR_B 5
+#define PIN_RS485_RX 3
+#define PIN_RS485_TX 2
 

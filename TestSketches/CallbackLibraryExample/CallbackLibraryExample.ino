@@ -8,6 +8,7 @@ PollingCallback callback; //Make a callback object to manage the callbacks.
 
 byte ledFlashIndex;
 void setup() {
+  pinMode(LED_BUILTIN,OUTPUT);
   Serial.begin(38400);
   Serial.println(F("Hello, this is an example of PollingCallback library."));
   Serial.println(F("If this is working properly, the inbuilt LED will flash once every second repeatedly and the arduino will send a once off message to the serial monitor in around 5 seconds."));

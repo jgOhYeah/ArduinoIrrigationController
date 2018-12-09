@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "PollingCallback.h"
 //Register a callback into an empty callback slot. If the buffer is full, this will return callbackBufferFull (255), otherwise the index of the callback in the buffer
-byte PollingCallback::add(unsigned long duration,bool repeat, void (*returnFunction)) {
+byte PollingCallback::add(unsigned long duration,bool repeat, void (*returnFunction)()) {
   //Do a linear search to find a non assigned callback, otherwise return a callback overload error code
   //Deliver the goods into the empty callback in the array
   byte index;
@@ -11,7 +11,7 @@ byte PollingCallback::add(unsigned long duration,bool repeat, void (*returnFunct
     }
   }
   if(index == MAX_CALLBACKS) { //We didn't find an empty slot for the callback.
-    return CALLBACK_BUFFER_FULL;
+    return ERR_CALLBACK_BUFFER_FULL;
   }
   //Set up the callback
   callbacks[index].startTime = millis();

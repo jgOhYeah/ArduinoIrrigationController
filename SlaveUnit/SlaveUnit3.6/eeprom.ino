@@ -27,14 +27,14 @@ void writeUInt(unsigned int address, unsigned int value) {
 }
 //#error Something wrong here!
 unsigned long readULong(unsigned int address) {
-#if defined(serialDebug) && defined(eepromDebug)
+#if defined(SERIAL_DEBUG) && defined(eepromDebug)
   Serial.print(F("Reading from EEPROM at address "));
   Serial.println(address);
 #endif
   unsigned long number = 0;
   for(char i = 3; i >= 0; i--) {
     number = number << 8; //0 << x = 0 all the time (hopefully)
-#if defined(serialDebug) && defined(eepromDebug)    
+#if defined(SERIAL_DEBUG) && defined(eepromDebug)    
     Serial.print(F("Iteration "));
     Serial.print(byte(i));
     Serial.print(F(". value is "));
@@ -42,14 +42,14 @@ unsigned long readULong(unsigned int address) {
 #endif
     number += EEPROM.read(address+i);
   }
-#if defined(serialDebug) && defined(eepromDebug)  
+#if defined(SERIAL_DEBUG) && defined(eepromDebug)  
   Serial.print(F("Number is: "));
   Serial.println(number);
 #endif  
   return number;
 }
 void writeULong(unsigned int address, unsigned long value) {
-#if defined(serialDebug) && defined(eepromDebug)
+#if defined(SERIAL_DEBUG) && defined(eepromDebug)
   Serial.print(F("Writing to EEPROM. The number is "));
   Serial.print(value);
   Serial.print(F(" which is: "));
@@ -58,7 +58,7 @@ void writeULong(unsigned int address, unsigned long value) {
   Serial.println(address);
 #endif
   for(byte i = 0; i < 4; i++) {
-#if defined(serialDebug) && defined(eepromDebug)
+#if defined(SERIAL_DEBUG) && defined(eepromDebug)
     Serial.print(F("Iteration "));
     Serial.print(i);
     Serial.print(F(". Value is "));
