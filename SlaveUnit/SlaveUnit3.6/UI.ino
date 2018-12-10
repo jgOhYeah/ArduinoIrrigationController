@@ -27,9 +27,7 @@ void flashLeds(byte states) {
       callback.cancel(ledCallback);
     }
     //Set the initial states of LEDs.
-    digitalWrite(PIN_UP_LED,(states & B00100000) >> 5); //Write the intial state of the up led (1 = on, 0 = off)
-    digitalWrite(PIN_HALF_LED,(states & B00010000) >> 4); //Write the intial state of the half led (1 = on, 0 = off)
-    digitalWrite(PIN_DOWN_LED,(states & B00001000) >> 3); //Write the intial state of the down led (1 = on, 0 = off)
+    setLeds();
     //Set up the callbacks
     byte mode = (states & B11000000) >> 6; //Get the top two bits as a number easily processed.
     switch(mode) {
@@ -51,10 +49,39 @@ void flashLeds(byte states) {
 void updateLeds() {
   if((ledStates & B11000000) >> 6 == LEDS_CHASE) { //If the leds are in chasing mode, special treatment, otherwise toggle leds if needed
     //In chase mode
+    byte currentStep = ledStates & B00000011; //The current step of the 
+    switch(currentStep) {
+      case 0:
+        ledStates = B11001001;
+        break;
+      case 1:
+        ledStates = B11010010;
+        break;
+      case 2:
+        ledStates = B11100011;
+        break;
+      case 3:
+        ledStates = B11010000;
+        break;
+    }
   } else {
-    //Not in chase mode
+    //Not in chase mode - will be flashing because steady is not called.
     if(ledStates & B00000100) { //Up led flashing
-      ledStates =adsfghjouajklgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg;
+      ledStates = ledStates ^ B00100000; //Invert the bit for the current led's state
+    }
+    if(ledStates & B00000010) { //Half led flashing
+      ledStates = ledStates ^ B00010000; //Invert the bit for the current led's state
+    }
+    if(ledStates & B00000001) { //Down led flashing
+      ledStates = ledStates ^ B00001000; //Invert the bit for the current led's state
     }
   }
+  setLeds();
 }
+//A function to write the current state of the led
+void setLeds() {
+  digitalWrite(PIN_UP_LED,(ledStates & B00100000) >> 5); //Write the intial state of the up led (1 = on, 0 = off)
+  digitalWrite(PIN_HALF_LED,(ledStates & B00010000) >> 4); //Write the intial state of the half led (1 = on, 0 = off)
+  digitalWrite(PIN_DOWN_LED,(ledStates & B00001000) >> 3); //Write the intial state of the down led (1 = on, 0 = off)
+}
+

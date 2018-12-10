@@ -38,16 +38,7 @@ void checkForSettings() {
       }
       while(!Serial.available()) { //The looping part of the settings menu - do this stuff while waiting for input or not sending data.
         bool buttonPressed = button.isPressed();
-        if(millis() - startTime >= ledFlashSpeed) {
-          startTime = millis();
-          ledsOn = !ledsOn;
-          digitalWrite(LED_BUILTIN,ledsOn);
-          if(buttonPressed) {
-            digitalWrite(PIN_UP_LED,ledsOn);
-            digitalWrite(PIN_HALF_LED,!ledsOn);
-            digitalWrite(PIN_DOWN_LED,ledsOn);
-          }
-        }
+        callback.check(); //Flash the leds
         if(!btnNotPressed && !buttonPressed) {
           btnNotPressed = true; //The button must be released before it can be pressed again
         }
