@@ -3,6 +3,7 @@
 #define DEFAULT_BAUD_RATE 9600 //Default baud rate to CMD_RESET the value stored in eeprom to.
 //Debug settings
 #define SERIAL_DEBUG
+#define DEBUG_CALLBACKS //Used for the callbacks library to send serial data
 //These only print messages if the above is defined
   //#define eepromDebug
   //#define pjonDebug

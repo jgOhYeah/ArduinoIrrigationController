@@ -2,16 +2,13 @@ void updateBay(char newStatus) {
   switch(newStatus) {
     case STATE_SHUT:
       closeBayMotor();
-      digitalWrite(PIN_DOWN_LED,HIGH);
-      digitalWrite(PIN_HALF_LED,LOW);
-      digitalWrite(PIN_UP_LED,LOW);
+      flashLeds(B10001001); //flash down led slowly
+      callback.add(downTravelSpeed,false,stopLedsFlashing); //Make the led go steady when we are pretty sure the motor has stopped
       timeAtDown = millis();
       break;
     case STATE_HALF:
       closeBayMotor();
-      digitalWrite(PIN_DOWN_LED,LOW);
-      digitalWrite(PIN_HALF_LED,HIGH);
-      digitalWrite(PIN_UP_LED,LOW);
+      flashLeds(B10010010); //flash half led slowly - leds will be made steady as part of stopping the motor.
       Serial.println(F("Bay at half called"));
       if(bayStatus == STATE_SHUT) {
         Serial.println(F("Bay was shut"));
@@ -38,15 +35,12 @@ void updateBay(char newStatus) {
       break;
     case STATE_OPEN:
       openBayMotor();
-      digitalWrite(PIN_DOWN_LED,LOW);
-      digitalWrite(PIN_HALF_LED,LOW);
-      digitalWrite(PIN_UP_LED,HIGH);
+      flashLeds(B10100100); //Flash up led slowly
+      callback.add(upTravelSpeed,false,stopLedsFlashing); //Make the led go steady when we are pretty sure the motor has stopped
       timeAtOpen = millis();
       break;
     default:
-      digitalWrite(PIN_DOWN_LED,HIGH);
-      digitalWrite(PIN_HALF_LED,HIGH);
-      digitalWrite(PIN_UP_LED,HIGH);
+      flashLeds(B11000000); //Chasing
   }
   bayStatus = newStatus;
 }
@@ -92,3 +86,12 @@ void errorHandlerLong (uint8_t code, unsigned long data, void *custom_pointer) {
     delay(100);
   }
 }
+/*void heartbeat() { //Debug and other stuff that needs to be done every so often.
+  digitalWrite(LED_BUILTIN,HIGH);
+  Serial.print(F("Time: "));
+  Serial.print(millis());
+  Serial.print(F("\tCallbacks Active: "));
+  Serial.println(callback.countActive());
+  digitalWrite(LED_BUILTIN,LOW);
+}*/
+

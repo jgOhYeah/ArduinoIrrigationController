@@ -1,24 +1,18 @@
 
 void checkForSettings() {
   if(button.isPressed()) { //Was the button pressed on startup?
-    ALL_LEDS(HIGH);
+    flashLeds(B01101111); //All leds fast flash - Up and down starting on, half starting off.
     unsigned long startTime = millis();
     unsigned long startTime2 = startTime;
     bool ledsOn = false;
     while(millis() - startTime < LONG_PRESS_TIME) {
-      if(millis() - startTime2 >= ledFlashSpeed) {
-        startTime2 = millis();
-        ledsOn = !ledsOn;
-        digitalWrite(PIN_UP_LED,ledsOn);
-        digitalWrite(PIN_HALF_LED,!ledsOn);
-        digitalWrite(PIN_DOWN_LED,ledsOn);
-      }
+      callback.check();
       if(!button.isPressed()) { //If someone lets go of the button, exit
-        ALL_LEDS(LOW);
+        flashLeds(0); //Swith off all leds
         return;
       }
     }
-    ALL_LEDS(LOW);
+    flashLeds(B10111111); //All leds slow flash - All starting on.
     digitalWrite(PIN_RS485_RX,HIGH); //Disable the rs485 transiever to use the serial port to talk usb.
     digitalWrite(PIN_RS485_TX,LOW);
     //We are now in settings mode
@@ -36,13 +30,19 @@ void checkForSettings() {
         Serial.println(F("To view the help text, type \"1\" or \"h\" and then enter."));
         Serial.println();
       }
+      bool lastButtonState = button.isPressed();
       while(!Serial.available()) { //The looping part of the settings menu - do this stuff while waiting for input or not sending data.
         bool buttonPressed = button.isPressed();
         callback.check(); //Flash the leds
         if(!btnNotPressed && !buttonPressed) {
           btnNotPressed = true; //The button must be released before it can be pressed again
         }
-        button.checkButton(); //must be called before button.longPress()
+        if(button.checkButton()) { //must be called before button.longPress()
+          flashLeds(B01101010); //Set up to flash a different pattern the first time the button is pressed
+        } else if(lastButtonState == true && buttonPressed == false) { //We released the button
+          flashLeds(B10111111); //Set back to the other way
+        }
+        lastButtonState = buttonPressed;
         if(button.longPress(LONG_PRESS_TIME) && btnNotPressed) { //If the button has been pressed for a long time, CMD_RESET the eeprom value for the serial baud rate (safety measure)
           btnNotPressed = false;
           unsigned long oldBaud = readULong(EEPROM_SERIAL_BAUD);
@@ -57,8 +57,7 @@ void checkForSettings() {
           Serial.print(oldBaud);
           Serial.println(F("bps."));
           Serial.println(F("To view the help text, type \"1\" or \"h\" and then enter."));
-          //Flash leds?
-          ALL_LEDS(HIGH);
+          specialFlashLeds(B01010010,2000);
         }
       } //Wait until we have something to read - check without removing from buffer
       int incomingCommand = Serial.read();
@@ -288,6 +287,7 @@ long acceptNewValue(unsigned long minimum, unsigned long maximum) {
   bool incorrectNumber = true;
   long number;
   do { //Will always run at least once
+    callback.check(); //Flash the leds
     number = Serial.parseInt();
     switch(number) {
       case 0: //Timed out
@@ -330,6 +330,7 @@ bool confirmationDialog () {
   unsigned long startTime = millis();
   bool involuntryExit = true;
   while(millis() - startTime < SERIAL_TIMEOUT && involuntryExit) { //Set a timeout of 10 minutes
+    callback.check(); //Flash the leds
     if(Serial.available()) {
       switch(Serial.read()) {
         case 'y': //Account for uppercase and lowercase

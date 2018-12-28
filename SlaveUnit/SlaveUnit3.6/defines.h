@@ -36,8 +36,9 @@ unsigned long timeAtOpen = 0;
 
 
 //Leds
+#define MAX_CALLBACKS 5 //Increase it a bit to be safe
 #define FAST_FLASH_RATE 100
-#define SLOW_FLASH_RATE 1000
+#define SLOW_FLASH_RATE 750
 
 #define LEDS_STEADY 0
 #define LEDS_FAST 1
@@ -45,6 +46,7 @@ unsigned long timeAtOpen = 0;
 #define LEDS_CHASE 3
 
 byte ledStates = 0;
+byte ledSavedStates = 0;
 byte ledCallback = 0;
 /* ledStates structure in binary:
  * ZZYYYXXX

@@ -84,4 +84,19 @@ void setLeds() {
   digitalWrite(PIN_HALF_LED,(ledStates & B00010000) >> 4); //Write the intial state of the half led (1 = on, 0 = off)
   digitalWrite(PIN_DOWN_LED,(ledStates & B00001000) >> 3); //Write the intial state of the down led (1 = on, 0 = off)
 }
+void stopLedsFlashing() {
+  ledStates = (ledStates & B00000111) << 3; //Set the currently active flashing leds to be always on.
+  setLeds();
+  Serial.print(F("Stopped LEDs Flashing. State: B"));
+  Serial.println(ledStates,2);
+}
+void specialFlashLeds(byte tempState,unsigned long duration) {
+  ledSavedStates = ledStates; //Save the current value to return to it later.
+  flashLeds(tempState); //Flash the new config of leds
+  callback.add(duration,false,resetLedsToNormal); //Set the time to reset back to the old mode
+  
+}
+void resetLedsToNormal() {
+  flashLeds(ledSavedStates);
+}
 

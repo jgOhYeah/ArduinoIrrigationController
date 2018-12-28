@@ -21,6 +21,7 @@ void setup() {
   setupOutputs();
   checkForSettings();
   updateBay(bayStatus); //Set the leds up
+  //callback.add(2000,true,heartbeat);
 }
 
 void loop() {
