@@ -2,11 +2,14 @@
 //Serial Settings
 #define DEFAULT_BAUD_RATE 9600 //Default baud rate to CMD_RESET the value stored in eeprom to.
 //Debug settings
-#define SERIAL_DEBUG
-#define DEBUG_CALLBACKS //Used for the callbacks library to send serial data
-//These only print messages if the above is defined
-  //#define eepromDebug
-  //#define pjonDebug
+#define DEBUG_ENABLE //Enable debugging. The other debugging features will only be active if this is defined.
+
+#define DEBUG_CALLBACK_LIBRARY_ENABLE //Used for the callbacks library to send serial data.
+#define DEBUG_EEPROM_ENABLE //Used to debug reading and saving longs to EEPROM
+#define DEBUG_MOTORS_ENABLE //Used to debug the current motor state
+#define DEBUG_UI_ENABLE //When leds are flashing
+#define DEBUG_PJON_ENABLE //Used to debug PJON error messages...
+#define DEBUG_ERRORS_ENABLE // Error messages
 
 //Pins
 #define PIN_BUTTON 9

@@ -23,9 +23,7 @@ void checkButtons() {
  */
 void flashLeds(byte states) {
     ledStates = states; //Set the global variable
-    if(ledCallback != ERR_CALLBACK_BUFFER_FULL) { //Get rid of the old callback to stop this becoming a memory leak
-      callback.cancel(ledCallback);
-    }
+    callback.cancel(ledCallback); //Get rid of the old callback to stop this becoming a memory leak
     //Set the initial states of LEDs.
     setLeds();
     //Set up the callbacks
@@ -84,11 +82,13 @@ void setLeds() {
   digitalWrite(PIN_HALF_LED,(ledStates & B00010000) >> 4); //Write the intial state of the half led (1 = on, 0 = off)
   digitalWrite(PIN_DOWN_LED,(ledStates & B00001000) >> 3); //Write the intial state of the down led (1 = on, 0 = off)
 }
-void stopLedsFlashing() {
+void stopLedsFlashing() { //WATCH out if calling from something other than a bayMoved callback as it records the bayMoved callback as done.
   ledStates = (ledStates & B00000111) << 3; //Set the currently active flashing leds to be always on.
   setLeds();
-  Serial.print(F("Stopped LEDs Flashing. State: B"));
-  Serial.println(ledStates,2);
+  callback.cancel(ledCallback); //Get rid of the old callback to stop this becoming a memory leak and wasting processing time
+  bayMovedCallback = NONEXISTANT_CALLBACK;
+  DEBUG_UI(F("Stopped LEDs Flashing. State: B"));
+  DEBUG_UI_LN((ledStates,2));
 }
 void specialFlashLeds(byte tempState,unsigned long duration) {
   ledSavedStates = ledStates; //Save the current value to return to it later.

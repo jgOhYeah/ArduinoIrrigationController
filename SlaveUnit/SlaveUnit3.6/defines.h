@@ -38,7 +38,7 @@ unsigned long timeAtOpen = 0;
 //Leds
 #define MAX_CALLBACKS 5 //Increase it a bit to be safe
 #define FAST_FLASH_RATE 100
-#define SLOW_FLASH_RATE 750
+#define SLOW_FLASH_RATE 1000
 
 #define LEDS_STEADY 0
 #define LEDS_FAST 1
@@ -47,7 +47,10 @@ unsigned long timeAtOpen = 0;
 
 byte ledStates = 0;
 byte ledSavedStates = 0;
-byte ledCallback = 0;
+#define ERR_CALLBACK_BUFFER_FULL 255 //Because this bit of code is before the library is included
+#define NONEXISTANT_CALLBACK 254
+byte ledCallback = NONEXISTANT_CALLBACK; //Set the index to be inactive so it doesn;t cancel a callback as it starts.
+byte bayMovedCallback = NONEXISTANT_CALLBACK;
 /* ledStates structure in binary:
  * ZZYYYXXX
  * Where:
@@ -63,3 +66,44 @@ byte ledCallback = 0;
 */
 
 #define ALL_LEDS(a) digitalWrite(PIN_UP_LED,a); digitalWrite(PIN_DOWN_LED,a); digitalWrite(PIN_HALF_LED,a)
+
+//Debugging macros to only enable debugging certain parts if debug is defined.
+#if defined(DEBUG_CALLBACK_LIBRARY_ENABLE) && defined(DEBUG_ENABLE) //Used for the callbacks library to send serial data.
+  #define DEBUG_CALLBACKS
+#endif
+
+#if defined(DEBUG_EEPROM_ENABLE) && defined(DEBUG_ENABLE) //Used to debug reading and saving longs to EEPROM
+  #define DEBUG_EEPROM(MESSAGE) Serial.print(MESSAGE)
+  #define DEBUG_EEPROM_LN(MESSAGE) Serial.println(MESSAGE)
+#else
+  #define DEBUG_EEPROM(MESSAGE)
+  #define DEBUG_EEPROM_LN(MESSAGE)
+#endif
+#if defined(DEBUG_MOTORS_ENABLE) && defined(DEBUG_ENABLE) //Used to debug the current motor state
+  #define DEBUG_MOTORS(MESSAGE) Serial.print(MESSAGE)
+  #define DEBUG_MOTORS_LN(MESSAGE) Serial.println(MESSAGE)
+#else
+  #define DEBUG_MOTORS(MESSAGE)
+  #define DEBUG_MOTORS_LN(MESSAGE)
+#endif
+#if defined(DEBUG_PJON_ENABLE) && defined(DEBUG_ENABLE) //Used to debug PJON error messages
+  #define DEBUG_PJON(MESSAGE) Serial.print(MESSAGE)
+  #define DEBUG_PJON_LN(MESSAGE) Serial.println(MESSAGE)
+#else
+  #define DEBUG_PJON(MESSAGE)
+  #define DEBUG_PJON_LN(MESSAGE)
+#endif
+#if defined(DEBUG_UI_ENABLE) && defined(DEBUG_ENABLE) //Used to debug Led flashing...
+  #define DEBUG_UI(MESSAGE) Serial.print(MESSAGE)
+  #define DEBUG_UI_LN(MESSAGE) Serial.println(MESSAGE)
+#else
+  #define DEBUG_UI(MESSAGE)
+  #define DEBUG_UI_LN(MESSAGE)
+#endif
+#if defined(DEBUG_ERRORS_ENABLE) && defined(DEBUG_ENABLE) //Used to debug Led flashing...
+  #define DEBUG_ERRORS(MESSAGE) Serial.print(MESSAGE)
+  #define DEBUG_ERRORS_LN(MESSAGE) Serial.println(MESSAGE)
+#else
+  #define DEBUG_ERRORS(MESSAGE)
+  #define DEBUG_ERRORS_LN(MESSAGE)
+#endif

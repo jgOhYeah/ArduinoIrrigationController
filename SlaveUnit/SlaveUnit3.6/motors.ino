@@ -1,23 +1,18 @@
 void openBayMotor() {
-#ifdef SERIAL_DEBUG
-  Serial.println(F("Motor opening"));
-#endif
+  DEBUG_MOTORS_LN(F("Motor opening"));
   digitalWrite(PIN_MOTOR_B,LOW);
   digitalWrite(PIN_MOTOR_A,HIGH);
 }
 void closeBayMotor() {
-#ifdef SERIAL_DEBUG
-  Serial.println(F("Motor closing"));
-#endif
+  DEBUG_MOTORS_LN(F("Motor closing"));
   digitalWrite(PIN_MOTOR_B,HIGH);
   digitalWrite(PIN_MOTOR_A,LOW);
 }
 void stopBayMotor() {
-#ifdef SERIAL_DEBUG
-  Serial.println(F("Motor stopping"));
-#endif
+  DEBUG_MOTORS_LN(F("Motor stopping"));
   digitalWrite(PIN_MOTOR_B,LOW);
   digitalWrite(PIN_MOTOR_A,LOW);
+  bayMovedCallback = NONEXISTANT_CALLBACK;
   stopLedsFlashing(); //The motor is not moving now, so fix the led
 }
 void setupOutputs() {
@@ -30,9 +25,7 @@ void setupOutputs() {
   digitalWrite(LED_BUILTIN, LOW); // Initialize LED 13 to be off
 }
 void openToHalf() {
-#ifdef SERIAL_DEBUG
-  Serial.println(F("Motor opening to half"));
-#endif
+  DEBUG_MOTORS_LN(F("Motor opening to half"));
   openBayMotor();
-  callback.add(halfUpTime,false,stopBayMotor); //Stop the motor at the right time
+  bayMovedCallback = callback.add(halfUpTime,false,stopBayMotor); //Stop the motor at the right time
 }

@@ -14,9 +14,9 @@ ButtonOnPress button(PIN_BUTTON,150,LOW,false);
 PollingCallback callback; //Make a callback object to manage the callbacks.
 
 void setup() {
+  setBaudRate();
   setupSerial();
   loadSettings();
-  setBaudRate();
   button.begin();
   setupOutputs();
   checkForSettings();

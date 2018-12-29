@@ -1,42 +1,43 @@
 void updateBay(char newStatus) {
+  callback.cancel(bayMovedCallback); //Will be NONEXISTANT_CALLBACK if the callback has already ended as the function it is set to call will set this value when they are called.
   switch(newStatus) {
     case STATE_SHUT:
       closeBayMotor();
       flashLeds(B10001001); //flash down led slowly
-      callback.add(downTravelSpeed,false,stopLedsFlashing); //Make the led go steady when we are pretty sure the motor has stopped
+      bayMovedCallback = callback.add(downTravelSpeed,false,stopLedsFlashing); //Make the led go steady when we are pretty sure the motor has stopped
       timeAtDown = millis();
       break;
     case STATE_HALF:
       closeBayMotor();
       flashLeds(B10010010); //flash half led slowly - leds will be made steady as part of stopping the motor.
-      Serial.println(F("Bay at half called"));
+      DEBUG_MOTORS_LN(F("Bay at half called"));
       if(bayStatus == STATE_SHUT) {
-        Serial.println(F("Bay was shut"));
+        DEBUG_MOTORS_LN(F("Bay was shut"));
         unsigned long timeShut = millis() - timeAtDown; //TODO: Stuff
         //If was definitely open, then if the time spent shutting is less than half open time.
-        Serial.print(F("Bay was open for: "));
-        Serial.print(millis()-timeAtOpen);
-        Serial.print(F("\tBay has been shutting for: "));
-        Serial.println(timeShut);
+        DEBUG_MOTORS(F("Bay was open for: "));
+        DEBUG_MOTORS(millis()-timeAtOpen);
+        DEBUG_MOTORS(F("\tBay has been shutting for: "));
+        DEBUG_MOTORS_LN(timeShut);
         if(millis() - timeAtOpen >= upTravelSpeed && timeShut <= halfDownTime) { //Before we started stuffing various settings up, was the outlet previously at the top and has the outlet traveled past the half way point?
-          callback.add(halfDownTime-timeShut,false,stopBayMotor); //Stop the motor at the right time. - It is already moving
+          bayMovedCallback = callback.add(halfDownTime-timeShut,false,stopBayMotor); //Stop the motor at the right time. - It is already moving
         } else {
           unsigned long callbackTime = 0;
           if(timeShut < downTravelSpeed) { //The bay is not at the bottom yet, so wait until it gets there
             callbackTime = downTravelSpeed - timeShut; //Delay only the minimum required to garuntee that it is shut
           }
-          callback.add(callbackTime,false,openToHalf); //Reverse the direction of the motor at the right time
+          bayMovedCallback = callback.add(callbackTime,false,openToHalf); //Reverse the direction of the motor at the right time
         }
       } else {
         //We can't be sure about the position of much else, so do the full amount just to be safe.
-        callback.add(downTravelSpeed,false,openToHalf); //Reverse the direction of the motor at the right time
+        bayMovedCallback = callback.add(downTravelSpeed,false,openToHalf); //Reverse the direction of the motor at the right time
       }
       startDelayTime = millis();
       break;
     case STATE_OPEN:
       openBayMotor();
       flashLeds(B10100100); //Flash up led slowly
-      callback.add(upTravelSpeed,false,stopLedsFlashing); //Make the led go steady when we are pretty sure the motor has stopped
+      bayMovedCallback = callback.add(upTravelSpeed,false,stopLedsFlashing); //Make the led go steady when we are pretty sure the motor has stopped
       timeAtOpen = millis();
       break;
     default:
@@ -72,13 +73,11 @@ void errorHandler (uint8_t code, uint16_t data, void *custom_pointer) {
   errorHandlerLong(code,(unsigned long) data,custom_pointer); //Make the PJON errors work
 }
 void errorHandlerLong (uint8_t code, unsigned long data, void *custom_pointer) {
-#ifdef SERIAL_DEBUG
-  Serial.println();
-  Serial.print(F("ERROR:\tError Code: "));
-  Serial.print(code);
-  Serial.print(F("\tData: "));
-  Serial.println(data);
-#endif
+  DEBUG_ERRORS_LN(());
+  DEBUG_ERRORS(F("ERROR:\tError Code: "));
+  DEBUG_ERRORS(code);
+  DEBUG_ERRORS(F("\tData: "));
+  DEBUG_ERRORS_LN(data);
   for(byte i = 0; i < 5; i++) { //Flash a led a bit so that it is obvious something is wrong
     digitalWrite(LED_BUILTIN,HIGH);
     delay(100);

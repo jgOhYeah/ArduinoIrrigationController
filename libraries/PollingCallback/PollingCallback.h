@@ -88,24 +88,33 @@ public:
 			}
 		}
 	}
-	
-	//Disble a callback - usefull for stopping repeated callbacks callbacks
-	//Make sure that the index is <= to MAX_CALLBACKS!
-	void cancel(byte index) {
-#ifdef DEBUG_CALLBACKS
-		Serial.print(F("DEBUG_CALLBACKS ("));
-		Serial.print(millis());
-		Serial.print(F("):\tAbout to disable a callback. Currently "));
-		Serial.print(countActive());
-		Serial.print(F(" of the available "));
-		Serial.print(MAX_CALLBACKS);
-		Serial.println(F(" are active."));
 
-		Serial.print(F("\tIndex: "));
-		Serial.println(index);
-		Serial.println();
+	//Disble a callback - usefull for stopping repeated callbacks callbacks
+	//If the index is not valid (>= MAX_CALLBACKS) then nothing will be done.
+	void cancel(byte index) {
+		if (index < MAX_CALLBACKS) {
+#ifdef DEBUG_CALLBACKS
+			Serial.print(F("DEBUG_CALLBACKS ("));
+			Serial.print(millis());
+			Serial.print(F("):\tAbout to disable a callback. Currently "));
+			Serial.print(countActive());
+			Serial.print(F(" of the available "));
+			Serial.print(MAX_CALLBACKS);
+			Serial.println(F(" are active."));
+
+			Serial.print(F("\tIndex: "));
+			Serial.println(index);
+			Serial.println();
 #endif
-		callbacks[index].active = false;
+			callbacks[index].active = false;
+		}
+#ifdef DEBUG_CALLBACKS
+		else {
+			Serial.print(F("DEBUG_CALLBACKS ("));
+			Serial.print(millis());
+			Serial.println(F("):\tHave been told to disable a callback that does not exist. Ignoring."));
+		}
+#endif
 	}
 
 	byte countActive() {
