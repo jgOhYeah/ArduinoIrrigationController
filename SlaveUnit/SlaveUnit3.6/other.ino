@@ -69,28 +69,74 @@ bool outsideRange(unsigned long number, unsigned long minimum, unsigned long max
     return false;
   }
 }
-void errorHandler (uint8_t code, uint16_t data, void *custom_pointer) {
+void errorHandler (uint8_t code, uint16_t data, void *custom_pointer) { //Allows the error codes from PJON to work with the same function as the error codes with large numbers in the data value
   errorHandlerLong(code,(unsigned long) data,custom_pointer); //Make the PJON errors work
 }
 void errorHandlerLong (uint8_t code, unsigned long data, void *custom_pointer) {
-  DEBUG_ERRORS_LN(());
+  //Only do it if the error is a not a disconnected error - otherwise possibly causing a loop!
+  if(code != PJON_CONNECTION_LOST && code != PJON_PACKETS_BUFFER_FULL) { //Possibly need to put in && code != PJON_CONTENT_TOO_LONG
+    char msgToSend[7];
+    msgToSend[0] = CMD_ERROR;
+    msgToSend[1] = code;
+    longToArray((byte *)msgToSend,2,data);
+    msgToSend[6] = 0; //Null terminate the array just in case
+    bus.send(MASTER_ID,msgToSend,6);
+  }
+  DEBUG_ERRORS_LN();
   DEBUG_ERRORS(F("ERROR:\tError Code: "));
   DEBUG_ERRORS(code);
   DEBUG_ERRORS(F("\tData: "));
   DEBUG_ERRORS_LN(data);
-  for(byte i = 0; i < 5; i++) { //Flash a led a bit so that it is obvious something is wrong
+  specialFlashLeds(B01111111,2500);
+  digitalWrite(LED_BUILTIN,HIGH); //Lasting message that an error has occured
+  /*for(byte i = 0; i < 5; i++) { //Flash a led a bit so that it is obvious something is wrong
     digitalWrite(LED_BUILTIN,HIGH);
     delay(100);
     digitalWrite(LED_BUILTIN,LOW);
     delay(100);
-  }
+  }*/
 }
-/*void heartbeat() { //Debug and other stuff that needs to be done every so often.
-  digitalWrite(LED_BUILTIN,HIGH);
-  Serial.print(F("Time: "));
-  Serial.print(millis());
-  Serial.print(F("\tCallbacks Active: "));
-  Serial.println(callback.countActive());
-  digitalWrite(LED_BUILTIN,LOW);
-}*/
+void housekeeping() { //Debug and other stuff that needs to be done every so often but not every loop
+  unsigned long voltage = readVcc();
+  if(voltage < MINIMUM_VOLTAGE) {
+     if(!isUndervoltage) {
+      isUndervoltage = true;
+      //digitalWrite(LED_BUILTIN,!digitalRead(LED_BUILTIN);
+      //Stop the motor as well here
+      errorHandlerLong(ERR_UNDERVOLTAGE,voltage,NULL);
+     }
+  } else {
+    isUndervoltage = false; //So only calls an undervoltage error once.
+  }
+  DEBUG_HOUSEKEEPING(F("HOUSEKEEPING ("));
+  DEBUG_HOUSEKEEPING(millis());
+  DEBUG_HOUSEKEEPING(F("):\tBay state: "));
+  DEBUG_HOUSEKEEPING(byte(bayStatus));
+  DEBUG_HOUSEKEEPING(F("\tVoltage: "));
+  DEBUG_HOUSEKEEPING_LN(voltage);
+}
 
+//From https://www.instructables.com/id/Secret-Arduino-Voltmeter/
+unsigned long readVcc() {
+  // Read 1.1V reference against AVcc
+  // set the reference to Vcc and the measurement to the internal 1.1V reference
+  #if defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+    ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+  #elif defined (__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)
+     ADMUX = _BV(MUX5) | _BV(MUX0) ;
+  #else
+    ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+  #endif  
+ 
+  delay(2); // Wait for Vref to settle
+  ADCSRA |= _BV(ADSC); // Start conversion
+  while (bit_is_set(ADCSRA,ADSC)); // measuring
+ 
+  uint8_t low  = ADCL; // must read ADCL first - it then locks ADCH  
+  uint8_t high = ADCH; // unlocks both
+ 
+  long result = (high<<8) | low;
+ 
+  result = 1125300L / result; // Calculate Vcc (in mV); 1125300 = 1.1*1023*1000
+  return result; // Vcc in millivolts
+}

@@ -163,8 +163,7 @@ void requestNumberInput (char * title,char suffix1,char suffix2, unsigned int st
   changeScreen(LCD_SET_VALUE,currentScreen); //Will not do anything apart from set the variables up and clear the screen as data needs to be passed to this function to be written
   //static char charBuffer[16];
   lcd.home();
-  strcpy_P(charBuffer,stringBack);
-  Serial.println(charBuffer);  
+  strcpy_P(charBuffer,stringBack);  
   lcd.write(charBuffer);
   lcd.setCursor(16-strlen(title),0);
   lcd.write(title);
@@ -181,9 +180,6 @@ void requestNumberInput (char * title,char suffix1,char suffix2, unsigned int st
   inputValueBottomRow();
 }
 void retrievedEepromValue(unsigned long number) {
-  Serial.println();
-  Serial.print(F("Eeprom setting: "));
-  Serial.println(valueEepromAddress);
   switch(valueEepromAddress) {
     //case SETTING_ADDRESS: //8 bit settings
     case SETTING_HALF_POS:

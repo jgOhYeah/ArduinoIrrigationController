@@ -1,5 +1,6 @@
 void checkButtons() {
   if(button.checkButton()) { //If the button is pressed
+    digitalWrite(LED_BUILTIN,LOW); //Reset the lasting message that an error has occured.
     char newStatus = bayStatus + 1;
     if(newStatus > STATE_OPEN) {
       newStatus = STATE_SHUT;
@@ -23,6 +24,7 @@ void checkButtons() {
  */
 void flashLeds(byte states) {
     ledStates = states; //Set the global variable
+    callback.cancel(ledSpecialCallback); //Cancel the special flashing of the leds if needed
     callback.cancel(ledCallback); //Get rid of the old callback to stop this becoming a memory leak
     //Set the initial states of LEDs.
     setLeds();
@@ -31,7 +33,7 @@ void flashLeds(byte states) {
     switch(mode) {
       case LEDS_STEADY:
         //Don't set any callbacks - initial state only.
-        ledCallback = ERR_CALLBACK_BUFFER_FULL;
+        ledCallback = NONEXISTANT_CALLBACK;
         break;
       case LEDS_FAST:
         ledCallback = callback.add(FAST_FLASH_RATE,true,updateLeds); //NEED TO SAVE ADDRESS TO CANCEL THIS CALLBACK BEFORE THE NEXT IS CALLED
@@ -93,7 +95,7 @@ void stopLedsFlashing() { //WATCH out if calling from something other than a bay
 void specialFlashLeds(byte tempState,unsigned long duration) {
   ledSavedStates = ledStates; //Save the current value to return to it later.
   flashLeds(tempState); //Flash the new config of leds
-  callback.add(duration,false,resetLedsToNormal); //Set the time to reset back to the old mode
+  ledSpecialCallback = callback.add(duration,false,resetLedsToNormal); //Set the time to reset back to the old mode
   
 }
 void resetLedsToNormal() {

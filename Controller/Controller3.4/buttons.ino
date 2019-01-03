@@ -307,9 +307,10 @@ void eepromScreen1Buttons() {
       } else { //Edit down time
         setting = SETTING_DOWN_SPEED;
       }
-      if(editingBay == NUMBER_OF_BAYS) { //Editing all bays, so get the setting from the first bay
+      //Ignoring for now as other functions will pick this up and deal with it.
+      /*if(editingBay == NUMBER_OF_BAYS) { //Editing all bays, so get the setting from the first bay
         address = FIRST_BAY_ADDRESS+FIRST_BAY_INDEX;
-      }
+      }*/
       buttonsEnabled = false; //Disable the buttons so that they cannot press anything unwanted when trying to get data from the slave
       waitingMessage();
       retrieveEepromNumber(address,setting,retrievedEepromValue);
@@ -351,9 +352,10 @@ void eepromScreen2Buttons() {
     } else { //Edit down time
       setting = SETTING_BAUD_RATE;
     }
-    if(editingBay == NUMBER_OF_BAYS) { //Editing all bays, so get the setting from the first bay
+    //Ignoring for now as other functions will pick this up and deal with it.
+    /*if(editingBay == NUMBER_OF_BAYS) { //Editing all bays, so get the setting from the first bay
       address = FIRST_BAY_ADDRESS+FIRST_BAY_INDEX;
-    }
+    }*/
     buttonsEnabled = false; //Disable the buttons so that they cannot press anything unwanted when trying to get data from the slave
     waitingMessage();
     retrieveEepromNumber(address,setting,retrievedEepromValue);

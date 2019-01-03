@@ -58,17 +58,17 @@ void receiverFunction(uint8_t *payload, uint16_t length, const PJON_Packet_Info 
         }
         case SETTING_BAUD_RATE: {
           charsToSend = 6;
-          longToArray(charBuffer,2,(byte*)readULong(EEPROM_SERIAL_BAUD));
+          longToArray((byte *)charBuffer,2,readULong(EEPROM_SERIAL_BAUD));
           break;
         }
         case SETTING_DOWN_SPEED: {
           charsToSend = 6;
-          longToArray(charBuffer,2,downTravelSpeed);
+          longToArray((byte *)charBuffer,2,downTravelSpeed);
           break;
         }
         case SETTING_UP_SPEED: {
           charsToSend = 6;
-          longToArray(charBuffer,2,upTravelSpeed);
+          longToArray((byte *)charBuffer,2,upTravelSpeed);
           break;
         }
         default: {

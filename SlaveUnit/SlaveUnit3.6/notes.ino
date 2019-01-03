@@ -5,5 +5,7 @@
  * TODO: Debug mode?
  * TODO: Optimise strings so that they are stored in separate arrays and shared to save memory?
  * 
+ * Slaves sometimes don't respond to requests for eeprom settings and appear as not connected
  * 
+ * Slave sometimes does not send what state it is in.
  */

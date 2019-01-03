@@ -64,7 +64,7 @@ void recieveData (uint8_t *payload, uint16_t length, const PJON_Packet_Info &pac
           errorHandler(ERR_UNKOWN_PARAMETERS,payload[0],NULL);
           return; //Stop execution there and don't continue.
       }
-      if(senderId == valueBayAddress && payload[1] == valueEepromAddress) { //This is the request we made from eeprom a while ago.
+      if((senderId == valueBayAddress || (valueBayAddress == LAST_BAY_ADDRESS + 1 && senderId == FIRST_BAY_ADDRESS + FIRST_BAY_INDEX)) && payload[1] == valueEepromAddress) { //This is the request we made from eeprom a while ago.
         callbackFunctionStored(number);
       } else { //Uncalled for packet was sent, so complain
         errorHandler(ERR_UNEXPECTED_PACKET,senderId,NULL);
@@ -114,19 +114,27 @@ void sendToAll(const char * data,byte length) {
   }
 }
 void retrieveEepromNumber(byte address,char eepromAddress,void (*callbackFunction)(unsigned long)) {
-  charsToSend[0] = CMD_READ_EEPROM;
-  charsToSend[1] = eepromAddress; //Prepare the data
-  charsToSend[2] = char(0);
-  bus.send(address,charsToSend,2);
   callbackFunctionStored = callbackFunction; //Where to call back from
   valueBayAddress = address;
   valueEepromAddress = eepromAddress;
+  
+  charsToSend[0] = CMD_READ_EEPROM;
+  charsToSend[1] = eepromAddress; //Prepare the data
+  charsToSend[2] = char(0);
+  if(valueBayAddress > LAST_BAY_ADDRESS) { //Send to all but for now only get the value off the first bay.
+    address = FIRST_BAY_ADDRESS +FIRST_BAY_INDEX;
+  }
+  bus.send(address,charsToSend,2);
 }
 void sendEepromLong(unsigned long number) {
   charBuffer[0] = CMD_SET_EEPROM;
   charBuffer[1] = valueEepromAddress;
   longToArray((byte*)charBuffer,2,number);
-  if(valueBayAddress == LAST_BAY_ADDRESS + 1) { //Send to all
+  Serial.println();
+  Serial.print(F("Sending eeprom long to "));
+  Serial.println(valueBayAddress);
+  if(valueBayAddress > LAST_BAY_ADDRESS) { //Send to all
+    Serial.println(F("Send to all."));
     sendToAll(charBuffer,6);
   } else {
     bus.send(valueBayAddress,charBuffer,6);
@@ -136,7 +144,11 @@ void sendEepromByte(unsigned long number) { //Using longs so the code is compati
   charBuffer[0] = CMD_SET_EEPROM;
   charBuffer[1] = valueEepromAddress;
   charBuffer[2] = number;
-  if(valueBayAddress == LAST_BAY_ADDRESS + 1) { //Send to all
+  Serial.println();
+  Serial.print(F("Sending eeprom long to "));
+  Serial.println(valueBayAddress);
+  if(valueBayAddress > LAST_BAY_ADDRESS) { //Send to all
+    Serial.println(F("Send to all."));
     sendToAll(charBuffer,3);
   } else {
     bus.send(valueBayAddress,charBuffer,3);

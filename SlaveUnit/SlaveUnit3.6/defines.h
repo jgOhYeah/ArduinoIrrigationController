@@ -1,9 +1,8 @@
 //Software Version of the slave
-#define SOFTWARE_VERSION " V3.6 test"
+#define SOFTWARE_VERSION " V3.6.1"
 #define MASTER_ID 255
 byte myId; //44 is bay 5, 45 is bay 6... 40 is bay 1
 //#define DEFAULT_BAUD_RATE 9600 //Default baud rate to CMD_RESET the value stored in eeprom to.
-
 //#define ledFlashSpeed 500
 #define LONG_PRESS_TIME 5000
 #define SERIAL_TIMEOUT 600000 //10 minutes
@@ -48,9 +47,10 @@ unsigned long timeAtOpen = 0;
 byte ledStates = 0;
 byte ledSavedStates = 0;
 #define ERR_CALLBACK_BUFFER_FULL 255 //Because this bit of code is before the library is included
-#define NONEXISTANT_CALLBACK 254
 byte ledCallback = NONEXISTANT_CALLBACK; //Set the index to be inactive so it doesn;t cancel a callback as it starts.
+byte ledSpecialCallback = NONEXISTANT_CALLBACK; //Only used for special occasions.
 byte bayMovedCallback = NONEXISTANT_CALLBACK;
+bool isUndervoltage = false;
 /* ledStates structure in binary:
  * ZZYYYXXX
  * Where:
@@ -106,4 +106,11 @@ byte bayMovedCallback = NONEXISTANT_CALLBACK;
 #else
   #define DEBUG_ERRORS(MESSAGE)
   #define DEBUG_ERRORS_LN(MESSAGE)
+#endif
+#if defined(DEBUG_HOUSEKEEPING_ENABLE) && defined(DEBUG_ENABLE) //Used to debug voltage, time, state...
+  #define DEBUG_HOUSEKEEPING(MESSAGE) Serial.print(MESSAGE)
+  #define DEBUG_HOUSEKEEPING_LN(MESSAGE) Serial.println(MESSAGE)
+#else
+  #define DEBUG_HOUSEKEEPING(MESSAGE)
+  #define DEBUG_HOUSEKEEPING_LN(MESSAGE)
 #endif

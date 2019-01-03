@@ -1,6 +1,6 @@
 //This is version 3.0. Version 1.0 used strings and probably
 //would have crashed after a while
-const char softwareVersion[] PROGMEM = " V3.1";
+const char softwareVersion[] PROGMEM = " V3.4";
 //Pins
 #define PIN_RS485_RX 10
 #define PIN_RS485_TX 9

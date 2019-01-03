@@ -53,7 +53,7 @@ void writeULong(unsigned int address, unsigned long value) {
     DEBUG_EEPROM(F("Iteration "));
     DEBUG_EEPROM(i);
     DEBUG_EEPROM(F(". Value is "));
-    DEBUG_EEPROM_LN(value & 255,2);
+    DEBUG_EEPROM_LN((value & 255,2));
     EEPROM.update(address+i,value & 255);
     value = value >> 8; //We don't care that value will be 0
   }

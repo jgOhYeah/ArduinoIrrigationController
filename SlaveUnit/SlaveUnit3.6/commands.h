@@ -7,6 +7,7 @@
 #define CMD_SET_EEPROM 'm'
 #define CMD_READ_EEPROM 'n'
 #define CMD_REPORT_EEPROM 'o' //The reply message sent to CMD_READ_EEPROM
+#define CMD_ERROR 'E' //E followed by the error code (byte) and data
 
 //EEPROM value codes
 #define SETTING_ADDRESS 'a'
@@ -29,3 +30,7 @@
 #define ERR_UNKOWN_PARAMETERS 53
 #define ERR_OUTSIDE_RANGE 54
 #define ERR_UNEXPECTED_PACKET 55
+#define ERR_UNDERVOLTAGE 56
+
+//Other common values
+#define NONEXISTANT_CALLBACK 254

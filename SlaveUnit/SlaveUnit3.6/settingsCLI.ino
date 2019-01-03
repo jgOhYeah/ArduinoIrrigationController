@@ -3,8 +3,6 @@ void checkForSettings() {
   if(button.isPressed()) { //Was the button pressed on startup?
     flashLeds(B01101111); //All leds fast flash - Up and down starting on, half starting off.
     unsigned long startTime = millis();
-    unsigned long startTime2 = startTime;
-    bool ledsOn = false;
     while(millis() - startTime < LONG_PRESS_TIME) {
       callback.check();
       if(!button.isPressed()) { //If someone lets go of the button, exit
