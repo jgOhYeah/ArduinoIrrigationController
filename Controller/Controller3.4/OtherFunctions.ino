@@ -173,7 +173,7 @@ void requestNumberInput (char * title,char suffix1,char suffix2, unsigned int st
   lcd.home();
   strcpy_P(charBuffer,stringBack);  
   lcd.write(charBuffer);
-  lcd.setCursor(16-strlen(title),0);
+  lcd.setCursor(LCD_WIDTH-strlen(title),0);
   lcd.write(title);
   //Bottom row will be drawn later
   

@@ -11,8 +11,8 @@ const char softwareVersion[] PROGMEM = " V3.4";
 #define PJON_PORT Serial1 //Set to Serial if the arduino has only one port
 //Addresses 0 to NUMBER_OF_BAYS for individual addressing, all devices are 'a'
 #define MASTER_ADDRESS 255
-#define NUMBER_OF_BAYS 7
-#define FIRST_BAY_INDEX 5 //To allow numbers to match up with the bays when being installed not all at a time.
+#define NUMBER_OF_BAYS 7 //7
+#define FIRST_BAY_INDEX 5 //5 To allow numbers to match up with the bays when being installed not all at a time.
 #define FIRST_BAY_ADDRESS 40
 #define LAST_BAY_ADDRESS FIRST_BAY_ADDRESS + NUMBER_OF_BAYS - 1
 //Buttons
@@ -37,6 +37,9 @@ char charsToSend[3]; //For some reason this cannot be a local variable.
 byte bayStatus[NUMBER_OF_BAYS];
 
 //LCD Stuff
+#define LCD_WIDTH 16
+#define LCD_HEIGHT 2 //Not used yet for layouts, only init.
+
 #define CLOCK_UPDATE_SPEED 5000
 //Screen selection
 #define LCD_MAIN 0

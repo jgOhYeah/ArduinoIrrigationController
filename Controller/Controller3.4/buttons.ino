@@ -67,7 +67,7 @@ void errorButtons() {
   BTN_ENABLE_CHECK();
   byte errorMsgLength = strlen(completeErrorMsg);
   //If not already the most left, scroll left.
-  if(errorMsgLength > 16 && leftButton.checkButton() && scrollPos > 0) {
+  if(errorMsgLength > LCD_WIDTH && leftButton.checkButton() && scrollPos > 0) {
     //Scroll the message to the left if more to left.
     byte numberOfSkips = scrollPos;
     if(scrollPos < LCD_SCROLL_SKIPS) { //If the scrolling ends up being a few characters out and not a multiple of LCD_SCROLL_SKIPS
@@ -82,8 +82,8 @@ void errorButtons() {
     drawErrorTop();
     lcd.setCursor(scrollPos,0);
   }
-  byte maxScrollPos = errorMsgLength - 16;
-  if(errorMsgLength > 16 && rightButton.checkButton() && scrollPos < maxScrollPos) {
+  byte maxScrollPos = errorMsgLength - LCD_WIDTH; //Oveflow won't matter as checking in the if statement below
+  if(errorMsgLength > LCD_WIDTH && rightButton.checkButton() && scrollPos < maxScrollPos) {
     byte numberOfSkips = scrollPos;
     if(scrollPos > maxScrollPos - LCD_SCROLL_SKIPS) { //If the scrolling ends up being a few characters out and not a multiple of LCD_SCROLL_SKIPS
       scrollPos = maxScrollPos;
@@ -112,7 +112,7 @@ void mainButtons() {
     switch(cursorPos) {
       //Loop back to more button
       case FIRST_BAY_INDEX:
-        cursorPos = 11;
+        cursorPos = LCD_WIDTH-5;
         break;
       //Skip a few to get back to selected
       case 11:
@@ -129,12 +129,12 @@ void mainButtons() {
    // Serial.println(F("Right button pressed"));
     switch(cursorPos) {
       //Loop back to more button
-      case 11:
+      case LCD_WIDTH-5:
         cursorPos = FIRST_BAY_INDEX;
         break;
       //Skip a few to get back to selected
       case NUMBER_OF_BAYS:
-        cursorPos = 11;
+        cursorPos = LCD_WIDTH-5;
         break;
       default:
         cursorPos++;
@@ -145,7 +145,7 @@ void mainButtons() {
   if(selectButton.checkButton()) {
     //stuff
     //Serial.println("Select button pressed");
-    if(cursorPos == 11) {
+    if(cursorPos == LCD_WIDTH-5) {
       //Call the menu screen if on the menu button
       changeScreen(LCD_MENU,LCD_MAIN);
       //Master Setting

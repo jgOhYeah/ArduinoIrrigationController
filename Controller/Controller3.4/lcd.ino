@@ -23,6 +23,7 @@ void changeScreen(byte nextMode, byte previousMode) {
  //When Changing screen
   scrollPos = 0;
   lcd.clear();
+  lcd.cursor();
   callback.cancel(clockCallback);
   clockCallback = NONEXISTANT_CALLBACK;
   //char charBuffer[15];
@@ -33,15 +34,15 @@ void changeScreen(byte nextMode, byte previousMode) {
       strcpy_P(charBuffer, initialising);
       //serialCom.sendString(charBuffer);
       lcd.write(charBuffer);
+      lcd.noCursor();
       //printNewLine();
       //printNewLine();
-      lcd.cursor();
       break;
     case LCD_MAIN:
       //Print out the bay numbers
       print1ToNumberOfBays(1);
       drawBayStates();
-      lcd.setCursor(11,1);
+      lcd.setCursor(LCD_WIDTH-5,1); //11
       strcpy_P(charBuffer,stringMore);
       lcd.write(charBuffer);
       drawClock();
@@ -79,13 +80,14 @@ void changeScreen(byte nextMode, byte previousMode) {
       cursorRow = 0;
       strcpy_P(charBuffer,stringBack);
       lcd.write(charBuffer);
+      lcd.setCursor(LCD_WIDTH-10,1);
       strcpy_P(charBuffer,stringSelectBay);
       lcd.write(charBuffer);
       strcpy_P(charBuffer,stringBay);
       lcd.write(charBuffer);
       lcd.setCursor(0,1);
       print1ToNumberOfBays(FIRST_BAY_INDEX + 1);
-      lcd.setCursor(9,1);
+      lcd.setCursor(LCD_WIDTH-7,1);
       strcpy_P(charBuffer,stringToEdit);
       lcd.write(charBuffer);
       strcpy_P(charBuffer,stringEdit);
@@ -139,10 +141,11 @@ void changeScreen(byte nextMode, byte previousMode) {
   lcd.setCursor(cursorPos,cursorRow);
 }
 void waitingMessage() { //Not a distinct screen as such
+  lcd.noCursor();
   lcd.clear();
   strcpy_P(charBuffer,stringWaiting);
   lcd.write(charBuffer);
-  lcd.setCursor(16,0); //Set the cursor to a non visable area to temporarily hide it
+  //lcd.setCursor(LCD_WIDTH,0); //Set the cursor to a non visable area to temporarily hide it - does not work on 40 by 2 lcds as there is no blank space
 }
 void drawErrorTop() {
   //char charBuffer[7];
@@ -156,7 +159,7 @@ void drawErrorTop() {
 void drawClock() {
   //char charBuff[8];
   runningTime(charBuffer);
-  lcd.setCursor(16-strlen(charBuffer)+scrollPos,0);
+  lcd.setCursor(LCD_WIDTH-strlen(charBuffer)+scrollPos,0);
   //Serial.println(strlen(timeFormatted));
   lcd.write(charBuffer);
 }
@@ -186,7 +189,7 @@ void drawBayStates() {
  */
 void inputValueBottomRow() {
   //char charBuffer[11];
-  byte xStartPos = 16-maximumDigits-4; //Right align. 4 spots are for the buttons.
+  byte xStartPos = LCD_WIDTH-maximumDigits-4; //Right align. 4 spots are for the buttons.
   if(valueSuffix1 != 0) { //If there is a suffix included, add a space for it.
     xStartPos--;
   }

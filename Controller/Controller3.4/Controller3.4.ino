@@ -34,7 +34,7 @@ void setup() {
     bayStatus[i] = STATE_UNKOWN;
   }
   //Start the interfaces
-  lcd.begin(16,2);
+  lcd.begin(LCD_WIDTH,LCD_HEIGHT);
   //Set up the builtin LED to show something or other
   pinMode(LED_BUILTIN,OUTPUT);
   digitalWrite(LED_BUILTIN,LOW);
