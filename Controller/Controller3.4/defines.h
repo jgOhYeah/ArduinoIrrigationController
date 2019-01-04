@@ -8,6 +8,7 @@ const char softwareVersion[] PROGMEM = " V3.4";
 //Serial
 //#define BAUD_RATE 9600
 #define BAUD_RATE 38400
+#define PJON_PORT Serial1 //Set to Serial if the arduino has only one port
 //Addresses 0 to NUMBER_OF_BAYS for individual addressing, all devices are 'a'
 #define MASTER_ADDRESS 255
 #define NUMBER_OF_BAYS 7
@@ -49,6 +50,7 @@ byte bayStatus[NUMBER_OF_BAYS];
 byte currentScreen = LCD_INIT;
 byte previousScreen = LCD_MAIN;
 byte screenBeforeThat = LCD_MAIN;
+byte clockCallback = NONEXISTANT_CALLBACK;
 //Speed at which scrolls - number of chars at a time
 #define LCD_SCROLL_SKIPS 9
 //Cursor and current position

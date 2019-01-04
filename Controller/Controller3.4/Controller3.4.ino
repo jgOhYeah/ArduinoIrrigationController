@@ -28,7 +28,7 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 ButtonOnPress leftButton(PIN_BUTTON_LEFT,MIN_BUTTON_OFF_TIME,BUTTON_PRESSED_STATE,BUTTON_PULLUPS_ENABLED);
 ButtonOnPress rightButton(PIN_BUTTON_RIGHT,MIN_BUTTON_OFF_TIME,BUTTON_PRESSED_STATE,BUTTON_PULLUPS_ENABLED);
 ButtonOnPress selectButton(PIN_BUTTON_SELECT,MIN_BUTTON_OFF_TIME,BUTTON_PRESSED_STATE,BUTTON_PULLUPS_ENABLED);
-PollingCallback callback; //Make a callback object to manage the callbacks.  <------------------------------------------------------- Up to HERE <----------------------------------
+PollingCallback callback;
 void setup() {
   for(byte i = 0; i < NUMBER_OF_BAYS; i++) {
     bayStatus[i] = STATE_UNKOWN;
@@ -43,7 +43,8 @@ void setup() {
   delay(START_DELAY); //Wait for system to power up
   changeScreen(LCD_INIT, LCD_MAIN); //Screen is set to init by default
   setupSerial();
-  serialDelay(REPLY_DELAY);
+  //serialDelay(REPLY_DELAY);
+  waitUntilAllConnected();
   if(currentScreen != LCD_ERROR) {
     changeScreen(LCD_MAIN, LCD_MAIN);
   }
@@ -60,14 +61,12 @@ void loop() {
   //UI stuff
   switch(currentScreen) {
     case LCD_MAIN:
-      updateTime();
       mainButtons();
       break;
     case LCD_MENU:
       menuButtons();
       break;
     case LCD_ERROR:
-      updateTime();
       errorButtons();
       break;
     case LCD_SET_VALUE:

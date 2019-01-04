@@ -92,8 +92,9 @@ void recieveData (uint8_t *payload, uint16_t length, const PJON_Packet_Info &pac
 }
 void setupSerial() {
   //Start the PJON Serial Network over rs485
-  Serial.begin(BAUD_RATE);
-  bus.strategy.set_serial(&Serial);
+  Serial.begin(BAUD_RATE); //Debugging (usb) port
+  PJON_PORT.begin(BAUD_RATE); //PJON stuff can be separate on an arduino mega
+  bus.strategy.set_serial(&PJON_PORT);
   //Set configuration to send packet requesting asynchronous acknowledgement response
   bus.set_synchronous_acknowledge(false);
   bus.set_asynchronous_acknowledge(true);
@@ -130,11 +131,7 @@ void sendEepromLong(unsigned long number) {
   charBuffer[0] = CMD_SET_EEPROM;
   charBuffer[1] = valueEepromAddress;
   longToArray((byte*)charBuffer,2,number);
-  Serial.println();
-  Serial.print(F("Sending eeprom long to "));
-  Serial.println(valueBayAddress);
   if(valueBayAddress > LAST_BAY_ADDRESS) { //Send to all
-    Serial.println(F("Send to all."));
     sendToAll(charBuffer,6);
   } else {
     bus.send(valueBayAddress,charBuffer,6);
@@ -144,11 +141,7 @@ void sendEepromByte(unsigned long number) { //Using longs so the code is compati
   charBuffer[0] = CMD_SET_EEPROM;
   charBuffer[1] = valueEepromAddress;
   charBuffer[2] = number;
-  Serial.println();
-  Serial.print(F("Sending eeprom long to "));
-  Serial.println(valueBayAddress);
   if(valueBayAddress > LAST_BAY_ADDRESS) { //Send to all
-    Serial.println(F("Send to all."));
     sendToAll(charBuffer,3);
   } else {
     bus.send(valueBayAddress,charBuffer,3);

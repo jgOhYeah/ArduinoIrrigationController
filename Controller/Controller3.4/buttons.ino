@@ -47,10 +47,11 @@ void menuButtons() {
     } else if (cursorPos == 6) {
       digitalWrite(LED_BUILTIN,HIGH);
       bus.send(PJON_BROADCAST,CMD_RESET,1); //Send the command for everything to CMD_RESET. - broadcast as nothing can really be trusted if the system has given up enough to need to be CMD_RESET.
-      serialDelay(REPLY_DELAY); //Wait long enough to hopefully send the message, otherwise too bad.
-      //Set the watchdog to timeout and CMD_RESET 
-      wdt_enable(WDTO_15MS); //This does not work on arduino nanos as there is a bug in the bootloader that crashes them until power is removed and reaplied.
-      while(true);
+      wdt_enable(WDTO_4S); //This does not work on arduino nanos as there is a bug in the bootloader that crashes them until power is removed and reaplied.
+      while(true) {
+        bus.update();
+        bus.receive();
+      }
       //CMD_RESET everything
     } else if (cursorPos == 9) { //Settings
       changeScreen(LCD_SETUP,LCD_MENU);
@@ -99,7 +100,7 @@ void errorButtons() {
   if(selectButton.checkButton()) {
     //Go to main screen
     //Serial.println(F("Select button pressed"));
-    changeScreen(previousScreen,LCD_MAIN);
+    changeScreen(previousScreen,screenBeforeThat);
   }
 }
 //Handler for the buttons on the main screen.

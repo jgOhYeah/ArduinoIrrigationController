@@ -3,7 +3,24 @@ int freeRam () {
   int v;
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
 }
-
+void wipeBayStates() {
+  for(byte i = FIRST_BAY_INDEX; i < NUMBER_OF_BAYS; i++) {
+    bayStatus[i] == STATE_NOT_PRESENT;
+  }
+}
+void waitUntilAllConnected() {
+  bool allConnected = false;
+  unsigned long startTime = millis();
+  while(!allConnected && millis() - startTime < REPLY_DELAY) { //NEED to add a timeout for when a bay is disconnected
+    allConnected = true;
+    for(byte i = FIRST_BAY_INDEX; i < NUMBER_OF_BAYS; i++) {
+      if(bayStatus[i] == STATE_NOT_PRESENT) {
+        allConnected = false;
+        break;
+      }
+    }
+  }
+}
 void runningTime(char * timeSinceStart) {
   unsigned long milliSeconds = millis();
   //byte seconds = milliSeconds / 1000 % 60;
@@ -26,16 +43,6 @@ void runningTime(char * timeSinceStart) {
   }
   itoa(seconds, number, 10);
   strcat(timeSinceStart, number);*/
-}
-void updateTime() {
-  //Every few seconds
-  static unsigned long nextTime = 0;
-  unsigned long milliSeconds = millis();
-  if(milliSeconds >= nextTime) {
-    nextTime = milliSeconds + CLOCK_UPDATE_SPEED;
-    drawClock();
-    lcd.setCursor(cursorPos,cursorRow);
-  }
 }
 void serialDelay(unsigned long waitTime) {
   unsigned long startTime = millis();
@@ -139,6 +146,7 @@ void errorHandler(uint8_t code, uint16_t data, void *custom_pointer) {
 #endif
   //Swap to the error screen
   currentScreen = tempScreen;
+  screenBeforeThat = previousScreen;
   changeScreen(LCD_ERROR,currentScreen);
   digitalWrite(LED_BUILTIN,LOW);
 }

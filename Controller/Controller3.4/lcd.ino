@@ -23,6 +23,8 @@ void changeScreen(byte nextMode, byte previousMode) {
  //When Changing screen
   scrollPos = 0;
   lcd.clear();
+  callback.cancel(clockCallback);
+  clockCallback = NONEXISTANT_CALLBACK;
   //char charBuffer[15];
   switch(currentScreen) {
     case LCD_INIT:
@@ -43,6 +45,7 @@ void changeScreen(byte nextMode, byte previousMode) {
       strcpy_P(charBuffer,stringMore);
       lcd.write(charBuffer);
       drawClock();
+      clockCallback = callback.add(CLOCK_UPDATE_SPEED,true,drawClock);
       cursorPos = FIRST_BAY_INDEX;
       cursorRow = 1;
       //Stuff
@@ -62,6 +65,8 @@ void changeScreen(byte nextMode, byte previousMode) {
       break;
     case LCD_ERROR:
       //Serial.println(F("Error logs displayed"));
+      //drawClock(); //Will be calledin drawErrorTop();
+      clockCallback = callback.add(CLOCK_UPDATE_SPEED,true,drawClock);
       drawErrorTop();
       lcd.setCursor(0,1);
       lcd.write(completeErrorMsg);
