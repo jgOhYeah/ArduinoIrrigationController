@@ -47,6 +47,7 @@ void menuButtons() {
     } else if (cursorPos == 6) {
       digitalWrite(LED_BUILTIN,HIGH);
       bus.send(PJON_BROADCAST,CMD_RESET,1); //Send the command for everything to CMD_RESET. - broadcast as nothing can really be trusted if the system has given up enough to need to be CMD_RESET.
+      waitingMessage(); //Put a message on the lcd
       wdt_enable(WDTO_4S); //This does not work on arduino nanos as there is a bug in the bootloader that crashes them until power is removed and reaplied.
       while(true) {
         bus.update();
@@ -115,7 +116,7 @@ void mainButtons() {
         cursorPos = LCD_WIDTH-5;
         break;
       //Skip a few to get back to selected
-      case 11:
+      case LCD_WIDTH-5:
         cursorPos = NUMBER_OF_BAYS;
         break;
       default:

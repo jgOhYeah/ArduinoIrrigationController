@@ -9,9 +9,10 @@ void wipeBayStates() {
   }
 }
 void waitUntilAllConnected() {
+  digitalWrite(LED_BUILTIN,HIGH);
   bool allConnected = false;
   unsigned long startTime = millis();
-  while(!allConnected && millis() - startTime < REPLY_DELAY) { //NEED to add a timeout for when a bay is disconnected
+  while(!allConnected && (millis() - startTime <= REPLY_DELAY)) { //NEED to add a timeout for when a bay is disconnected
     allConnected = true;
     for(byte i = FIRST_BAY_INDEX; i < NUMBER_OF_BAYS; i++) {
       if(bayStatus[i] == STATE_NOT_PRESENT) {
@@ -20,6 +21,7 @@ void waitUntilAllConnected() {
       }
     }
   }
+  digitalWrite(LED_BUILTIN,LOW);
 }
 void runningTime(char * timeSinceStart) {
   unsigned long milliSeconds = millis();

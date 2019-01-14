@@ -1,0 +1,8 @@
+http://avtanski.net/projects/lcd/
+
+  Bay: 1234567            Up Time: 00:00
+State: ??????? *Set all            *More
+
+  Bay: 123456789           Up Time: 00:00
+State: ????????? ~Set all          ~More		'~' displays as '->'
+

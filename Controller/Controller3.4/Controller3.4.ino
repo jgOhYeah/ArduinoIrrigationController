@@ -30,8 +30,9 @@ ButtonOnPress rightButton(PIN_BUTTON_RIGHT,MIN_BUTTON_OFF_TIME,BUTTON_PRESSED_ST
 ButtonOnPress selectButton(PIN_BUTTON_SELECT,MIN_BUTTON_OFF_TIME,BUTTON_PRESSED_STATE,BUTTON_PULLUPS_ENABLED);
 PollingCallback callback;
 void setup() {
-  for(byte i = 0; i < NUMBER_OF_BAYS; i++) {
-    bayStatus[i] = STATE_UNKOWN;
+  for(byte i = 0; i < NUMBER_OF_BAYS; i++) { //Set the possibly unused first few addresses to a known value - should never be accessed or written to apart from this is the first few numbers are blocked off.
+    //bayStatus[i] = STATE_UNKOWN;
+    bayStatus[i] = STATE_NOT_PRESENT;
   }
   //Start the interfaces
   lcd.begin(LCD_WIDTH,LCD_HEIGHT);
@@ -57,6 +58,7 @@ void setup() {
 void loop() {
   bus.update();
   bus.receive();
+  callback.check();
   //bus.receive(TS_TIME_IN + latency);
   //UI stuff
   switch(currentScreen) {

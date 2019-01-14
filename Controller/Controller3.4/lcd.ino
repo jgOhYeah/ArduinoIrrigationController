@@ -80,7 +80,7 @@ void changeScreen(byte nextMode, byte previousMode) {
       cursorRow = 0;
       strcpy_P(charBuffer,stringBack);
       lcd.write(charBuffer);
-      lcd.setCursor(LCD_WIDTH-10,1);
+      lcd.setCursor(LCD_WIDTH-10,0);
       strcpy_P(charBuffer,stringSelectBay);
       lcd.write(charBuffer);
       strcpy_P(charBuffer,stringBay);
@@ -162,6 +162,8 @@ void drawClock() {
   lcd.setCursor(LCD_WIDTH-strlen(charBuffer)+scrollPos,0);
   //Serial.println(strlen(timeFormatted));
   lcd.write(charBuffer);
+  lcd.setCursor(cursorPos+scrollPos,cursorRow);
+  
 }
 void drawBayStates() {
   //Go to the row beneath and print out the status of each
