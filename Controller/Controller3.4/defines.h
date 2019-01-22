@@ -1,6 +1,6 @@
 //This is version 3.0. Version 1.0 used strings and probably
 //would have crashed after a while
-const char softwareVersion[] PROGMEM = " V3.4";
+const char softwareVersion[] PROGMEM = " V3.5";
 //Pins
 #define PIN_RS485_RX 10
 #define PIN_RS485_TX 9
@@ -29,7 +29,7 @@ bool buttonsEnabled = true;
 #define BTN_ENABLE_CHECK() if(!buttonsEnabled) return
 
 #define START_DELAY 2000
-#define REPLY_DELAY 3000
+#define REPLY_DELAY 6000
 char charsToSend[3]; //For some reason this cannot be a local variable.
 
 
@@ -37,10 +37,19 @@ char charsToSend[3]; //For some reason this cannot be a local variable.
 byte bayStatus[NUMBER_OF_BAYS];
 
 //LCD Stuff
-#define LCD_WIDTH 16
+#define LCD_WIDTH 40
 #define LCD_HEIGHT 2 //Not used yet for layouts, only init.
+#define LCD_LEGEND //Only define on larger screens that can fit it - legend for bay number and state
+#define LCD_CLOCK_LEGEND //Up time legend for clock
+#define LCD_DYNAMIC_ALL_BAYS_BTN //If all bays are the same, display 'S', 'H' or 'O', otherwise '*' if disabled, always '*' or LCD_ALL_BAYS_DEFAULT_BTN
+#define LCD_WEBSITE LCD_ABOUT //Only on screens large enough - minimum of 25 chars long - set to LCD_ABOUT, LCD_INIT or NONE
+#ifdef LCD_LEGEND //Offset for buttons... - length of string 
+  #define LCD_LEGEND_LEFT_OFFSET 7
+#else
+  #define LCD_LEGEND_LEFT_OFFSET 0
+#endif
 
-#define CLOCK_UPDATE_SPEED 5000
+#define CLOCK_UPDATE_SPEED 5000 //The time between which the clock is refreshed on the lcd
 //Screen selection
 #define LCD_MAIN 0
 #define LCD_MENU 1
@@ -50,6 +59,7 @@ byte bayStatus[NUMBER_OF_BAYS];
 #define LCD_EDIT_EEPROM_1 5
 #define LCD_EDIT_EEPROM_2 6
 #define LCD_SET_VALUE 7
+#define LCD_ABOUT 8
 byte currentScreen = LCD_INIT;
 byte previousScreen = LCD_MAIN;
 byte screenBeforeThat = LCD_MAIN;

@@ -5,7 +5,7 @@ int freeRam () {
 }
 void wipeBayStates() {
   for(byte i = FIRST_BAY_INDEX; i < NUMBER_OF_BAYS; i++) {
-    bayStatus[i] == STATE_NOT_PRESENT;
+    bayStatus[i] = STATE_NOT_PRESENT;
   }
 }
 void waitUntilAllConnected() {
@@ -13,6 +13,8 @@ void waitUntilAllConnected() {
   bool allConnected = false;
   unsigned long startTime = millis();
   while(!allConnected && (millis() - startTime <= REPLY_DELAY)) { //NEED to add a timeout for when a bay is disconnected
+    bus.update();
+    bus.receive();
     allConnected = true;
     for(byte i = FIRST_BAY_INDEX; i < NUMBER_OF_BAYS; i++) {
       if(bayStatus[i] == STATE_NOT_PRESENT) {
@@ -23,14 +25,18 @@ void waitUntilAllConnected() {
   }
   digitalWrite(LED_BUILTIN,LOW);
 }
-void runningTime(char * timeSinceStart) {
+void runningTime(char * timeSinceStart, bool concatenate) {
   unsigned long milliSeconds = millis();
   //byte seconds = milliSeconds / 1000 % 60;
   byte minutes = milliSeconds / 60000 % 60;
   unsigned int hours = milliSeconds / 3600000;
   char number[7];
   itoa(hours, number, 10);
-  strcpy(timeSinceStart, number);
+  if(concatenate) {
+    strcat(timeSinceStart, number);
+  } else {
+    strcpy(timeSinceStart, number);
+  }
   strcat_P(timeSinceStart, colon);
   //Add a 0 to keep places
   if (minutes < 10) {
@@ -63,7 +69,7 @@ void errorHandler(uint8_t code, uint16_t data, void *custom_pointer) {
     currentScreen = LCD_ERROR;//Freeze the main screen if active
   }
   //Put the time into the message
-  runningTime(completeErrorMsg);
+  runningTime(completeErrorMsg,false);
   strcat(completeErrorMsg," ");
   switch(code) {
     case PJON_CONNECTION_LOST: { //This is the most likely error, so give a bit more explaination

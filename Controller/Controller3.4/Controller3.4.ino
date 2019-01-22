@@ -1,7 +1,7 @@
 //Include the defines.h file in the same directory
 #include "commands.h"
-#include "strings.h"
 #include "defines.h"
+#include "strings.h"
 #include "settings.h"
 /* Include Async ACK code setting PJON_INCLUDE_ASYNC_ACK as true before including PJON.h */
 #define PJON_INCLUDE_ASYNC_ACK true
@@ -11,7 +11,7 @@
 
 #include <PJON.h>
 
-uint8_t bus_id[] = {0, 0, 0, 1};
+uint8_t bus_id[] = PJON_BUS_ID;
 // <Strategy name> bus(selected device id)
 PJON<ThroughSerial> bus(bus_id, MASTER_ADDRESS);
 
@@ -30,10 +30,7 @@ ButtonOnPress rightButton(PIN_BUTTON_RIGHT,MIN_BUTTON_OFF_TIME,BUTTON_PRESSED_ST
 ButtonOnPress selectButton(PIN_BUTTON_SELECT,MIN_BUTTON_OFF_TIME,BUTTON_PRESSED_STATE,BUTTON_PULLUPS_ENABLED);
 PollingCallback callback;
 void setup() {
-  for(byte i = 0; i < NUMBER_OF_BAYS; i++) { //Set the possibly unused first few addresses to a known value - should never be accessed or written to apart from this is the first few numbers are blocked off.
-    //bayStatus[i] = STATE_UNKOWN;
-    bayStatus[i] = STATE_NOT_PRESENT;
-  }
+  wipeBayStates();
   //Start the interfaces
   lcd.begin(LCD_WIDTH,LCD_HEIGHT);
   //Set up the builtin LED to show something or other

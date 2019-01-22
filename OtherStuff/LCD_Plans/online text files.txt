@@ -1,8 +1,27 @@
 http://avtanski.net/projects/lcd/
 
-  Bay: 1234567            Up Time: 00:00
+```
+Bay #: 1234567            Up Time: 00:00
 State: ??????? *Set all            *More
-
+```
+```
   Bay: 123456789           Up Time: 00:00
 State: ????????? ~Set all          ~More		'~' displays as '->'
-
+```
+20 by 4 version?
+```
+Bay #: 123456789A
+State: ?????????*
+               ~More
+     Run Time: 00:00
+```
+16 by 2 version
+```
+123456789A 00:00
+?????????* ~More
+```
+40 by 2 version
+```
+Bay #: 123456789A         Up Time: 00:00
+State: ?????????*                  ~More
+```

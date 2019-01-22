@@ -8,4 +8,6 @@
  * Slaves sometimes don't respond to requests for eeprom settings and appear as not connected
  * 
  * Slave sometimes does not send what state it is in.
+ * 
+ * bus id eeprom setting for slaves
  */

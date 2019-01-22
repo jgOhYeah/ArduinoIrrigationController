@@ -2,10 +2,13 @@
 #define SOFTWARE_VERSION " V3.6.1"
 #define MASTER_ID 255
 byte myId; //44 is bay 5, 45 is bay 6... 40 is bay 1
+uint8_t busId[4]; // = DEFAULT_PJON_BUS_ID;
 //#define DEFAULT_BAUD_RATE 9600 //Default baud rate to CMD_RESET the value stored in eeprom to.
 //#define ledFlashSpeed 500
 #define LONG_PRESS_TIME 5000
-#define SERIAL_TIMEOUT 600000 //10 minutes
+#define SERIAL_TIMEOUT 600000 //11 minutes
+#define SERIAL_INPUT_MAX_DIGITS 10 //Maximum number of digits that can be entered when typing something. - 10 digits is the maximum a long and unsigned long can hold
+#define SERIAL_INPUT_TIMEOUT_VALUE -2
 //#define ENABLE_RESET //Do not define this if this code is running on an atmega 328p running the arduino nano bootloader! (arduino uno bootloader is fine)
 char bayStatus = STATE_UNKOWN;
 #define STRINGIFY(x) #x
@@ -27,11 +30,13 @@ unsigned long timeAtOpen = 0;
 
 //ADDRESSES OF VALUES STORED IN EEPROM
 //Longs take 4 bytes, ints take 2 and bytes take 1
-#define EEPROM_ADDRESS 0
-#define EEPROM_HALFWAY_POS 1
-#define EEPROM_DOWN_TRAVEL_SPEED 2
-#define EEPROM_UP_TRAVEL_SPEED 6
-#define EEPROM_SERIAL_BAUD 10
+#define EEPROM_ADDRESS 0 //1 byte
+#define EEPROM_HALFWAY_POS 1 //1 byte
+#define EEPROM_DOWN_TRAVEL_SPEED 2 //4 bytes
+#define EEPROM_UP_TRAVEL_SPEED 6 //4 bytes
+#define EEPROM_SERIAL_BAUD 10 //4 bytes
+#define EEPROM_BUS_ID 14 //4 bytes (each is a separate number though)
+#define EEPROM_FIRST_START_UP //1 byte - set to a random number (B10011001) if the slave has started up before, otherwise burn the default values into the other eeprom settings and set this to this number - factory reset
 
 
 //Leds

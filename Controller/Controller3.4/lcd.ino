@@ -5,7 +5,11 @@ void setupLcd() {
   //"Irrigation "
   strcpy_P(charBuffer, irrigation);
   lcd.write(charBuffer);
+#if LCD_WEBSITE==LCD_ABOUT //Put the irrigation controller message completely on the top row if the website is to be displayed on the bottom.
+  lcd.setCursor(11,0);
+#else
   lcd.setCursor(0,1);
+#endif
   //"Controller"
   strcpy_P(charBuffer, controller);
   lcd.write(charBuffer);
@@ -14,6 +18,11 @@ void setupLcd() {
   lcd.write(charBuffer);
   //PrintNewLine
   //printNewLine();
+#if LCD_WEBSITE==LCD_ABOUT
+  lcd.setCursor(0,1);
+  strcpy_P(charBuffer, stringWebsite);
+  lcd.write(charBuffer);
+#endif
 }
 
 void changeScreen(byte nextMode, byte previousMode) {
@@ -34,11 +43,24 @@ void changeScreen(byte nextMode, byte previousMode) {
       strcpy_P(charBuffer, initialising);
       //serialCom.sendString(charBuffer);
       lcd.write(charBuffer);
+#if LCD_WEBSITE==LCD_INIT || LCD_WEBSITE==LCD_ABOUT
+      lcd.setCursor(0,1);
+      strcpy_P(charBuffer, stringWebsite);
+      lcd.write(charBuffer);
+#endif
       lcd.noCursor();
       //printNewLine();
       //printNewLine();
       break;
     case LCD_MAIN:
+#ifdef LCD_LEGEND //Put the legend if needed
+      strcpy_P(charBuffer,stringBayNum);
+      lcd.write(charBuffer);
+      lcd.setCursor(0,1);
+      strcpy_P(charBuffer,stringBayState);
+      lcd.write(charBuffer);
+      lcd.setCursor(LCD_LEGEND_LEFT_OFFSET,0);
+#endif
       //Print out the bay numbers
       print1ToNumberOfBays(1);
       drawBayStates();
@@ -47,7 +69,7 @@ void changeScreen(byte nextMode, byte previousMode) {
       lcd.write(charBuffer);
       drawClock();
       clockCallback = callback.add(CLOCK_UPDATE_SPEED,true,drawClock);
-      cursorPos = FIRST_BAY_INDEX;
+      cursorPos = LCD_LEGEND_LEFT_OFFSET+FIRST_BAY_INDEX;
       cursorRow = 1;
       //Stuff
       break;
@@ -111,11 +133,11 @@ void changeScreen(byte nextMode, byte previousMode) {
       //Bottom Row - different for pages 1 and 2
       lcd.setCursor(0,1);
       if(currentScreen == LCD_EDIT_EEPROM_1) { //First page
-        lcd.write('*');
+        lcd.write(LCD_NORMAL_BUTTON);
         strcpy_P(charBuffer,stringUp);
         lcd.write(charBuffer);
         lcd.write(' ');
-        lcd.write('*');
+        lcd.write(LCD_NORMAL_BUTTON);
         strcpy_P(charBuffer,stringDown);
         lcd.write(charBuffer);
         strcpy_P(charBuffer,stringTime);
@@ -124,11 +146,11 @@ void changeScreen(byte nextMode, byte previousMode) {
         lcd.write(charBuffer);
       } else { //Second page
         lcd.write('<');
-        lcd.write('*');
+        lcd.write(LCD_NORMAL_BUTTON);
         strcpy_P(charBuffer,stringHalfPos);
         lcd.write(charBuffer);
         lcd.write(' ');
-        lcd.write('*');
+        lcd.write(LCD_NORMAL_BUTTON);
         strcpy_P(charBuffer,stringBaud);
         lcd.write(charBuffer);
       }
@@ -158,7 +180,12 @@ void drawErrorTop() {
 }
 void drawClock() {
   //char charBuff[8];
-  runningTime(charBuffer);
+#ifdef LCD_LEGEND //Put the legend if needed
+  strcpy_P(charBuffer,stringUpTime);
+  runningTime(charBuffer,true);
+#else
+  runningTime(charBuffer,false);
+#endif
   lcd.setCursor(LCD_WIDTH-strlen(charBuffer)+scrollPos,0);
   //Serial.println(strlen(timeFormatted));
   lcd.write(charBuffer);
@@ -167,9 +194,9 @@ void drawClock() {
 }
 void drawBayStates() {
   //Go to the row beneath and print out the status of each
-  lcd.setCursor(0,1);
+  lcd.setCursor(LCD_LEGEND_LEFT_OFFSET,1);
   for(byte i = 0; i < FIRST_BAY_INDEX; i++) { //Blank out unused bays
-    lcd.write('-');
+    lcd.write(LCD_DISABLED_BAY_SYMBOL);
   }
   allTheSame = true;
   if(bayStatus[FIRST_BAY_INDEX] == STATE_UNKOWN || bayStatus[FIRST_BAY_INDEX] == STATE_NOT_PRESENT) {
@@ -181,7 +208,15 @@ void drawBayStates() {
       allTheSame = false;
     }
   }
-  lcd.write('*');
+#ifdef LCD_DYNAMIC_ALL_BAYS_BTN
+  if(allTheSame) {
+    lcd.write(byte(bayOptions[bayStatus[FIRST_BAY_INDEX]]));
+  } else {
+    lcd.write(LCD_ALL_BAYS_DEFAULT_BTN);
+  }
+#else
+  lcd.write(LCD_ALL_BAYS_DEFAULT_BTN);
+#endif
 }
 
 /* The screen should look like this:

@@ -44,3 +44,6 @@
 #define DEFAULT_UP_SPEED 25000
 #define DEFAULT_DOWN_SPEED 25000
 #define DEFAULT_BAUD_RATE 38400
+
+//Shared PJON settings
+#define PJON_BUS_ID {0,0,1,73} //An official bus id for rs485 in Northern Victoria, registered 15/01/2018

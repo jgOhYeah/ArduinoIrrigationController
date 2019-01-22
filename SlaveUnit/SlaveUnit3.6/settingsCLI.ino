@@ -84,7 +84,21 @@ void checkForSettings() {
         case '2': //Current status
           printCurrentSettings();
           break;
-        case '3': { //Serial address
+        case '3': { //Bus id
+          Serial.print(F("The "));
+          Serial.print(F("bus id"));
+          Serial.print(F(" of this bay "));
+          Serial.print(F("is currently "));
+          printBusId();
+          Serial.println(F('.'));
+          for(byte i = 0; i < 4; i++) {
+            Serial.print(F("Set part "));
+            Serial.print(i+1);
+            Serial.print(F("of the bay address: "));
+            int number = acceptNewValue(0,255; #error need to make a proper way of entering
+          }
+        }
+        case '4': { //Serial address
           Serial.print(F("The "));
           Serial.print(F("address"));
           Serial.print(F(" of this bay "));
@@ -104,7 +118,7 @@ void checkForSettings() {
           }
           break;
         }
-        case '4': { //Halfway position
+        case '5': { //Halfway position
           Serial.print(F("The "));
           Serial.print(F("\"halfway\" position"));
           Serial.print(F(" of this bay "));
@@ -124,7 +138,7 @@ void checkForSettings() {
           }
           break;
         }
-        case '5': { //Up travel time
+        case '6': { //Up travel time
           Serial.print(F("T"));
           Serial.print(F("he time (in milliseconds) that the bay takes to fully "));
           Serial.print(F("open "));
@@ -144,7 +158,7 @@ void checkForSettings() {
           }
           break;
         }
-        case '6': {//Down travel time
+        case '7': {//Down travel time
           Serial.print(F("T"));
           Serial.print(F("he time (in milliseconds) that the bay takes to fully "));
           Serial.print(F("close "));
@@ -164,7 +178,7 @@ void checkForSettings() {
           }
           break;
         }
-        case '7': {//Baud rate
+        case '8': {//Baud rate
           Serial.print(F("The baud rate used for serial communications (with the rs485 bus and this settings menu) "));
           Serial.print(F("is currently "));
           Serial.print(readULong(EEPROM_SERIAL_BAUD));
@@ -198,7 +212,6 @@ void checkForSettings() {
               }
             }
           }
-          break;
         }
         default:
           printNotUnderstand();
@@ -220,18 +233,19 @@ void printHelp() {
   Serial.println(F(" {0} Exit settings and run normally"));
   Serial.println(F(" {1, h or H} View the help text again (this)."));
   Serial.println(F(" {2} View the current settings and status."));
-  Serial.println(F(" {3} Set bay address."));
-  Serial.println(F(" {4} Set the percentage (1 to 99) that the bay is open in the halfway position."));
-  Serial.print(F(" {5"));
+  Serial.println(F(" {3} Change the serial bus id."));
+  Serial.println(F(" {4} Set bay address."));
+  Serial.println(F(" {5} Set the percentage (1 to 99) that the bay is open in the halfway position."));
+  Serial.print(F(" {6"));
   Serial.print(F("} Set t"));
   Serial.print(F("he time (in milliseconds) that the bay takes to fully "));
   Serial.println(F("open."));
-  Serial.print(F(" {6"));
+  Serial.print(F(" {7"));
   Serial.print(F("} Set t"));
   Serial.print(F("he time (in milliseconds) that the bay takes to fully "));
   Serial.println(F("close."));
   //Serial.println(F(" {7} Set the bay to a certain position (open, half or shut).")); //TODO: Not yet implemented
-  Serial.println(F(" {7} Change the baud rate of the serial connection (Potentially DANGEROUS!)."));
+  Serial.println(F(" {8} Change the baud rate of the serial connection (Potentially DANGEROUS!)."));
 }
 //Prints current configuration
 void printCurrentSettings() {
@@ -240,6 +254,8 @@ void printCurrentSettings() {
   Serial.println(F("Current settings are as follows:"));
   Serial.print(F(" - Serial Baud Rate: "));
   Serial.println(readULong(EEPROM_SERIAL_BAUD));
+  Serial.print(F(" - Bus id: "));
+  printBusId();
   Serial.print(F(" - Bay address: "));
   Serial.println(myId);
   Serial.print(F(" - Time (in milliseconds) taken for bay to travel ")); //Hopefully the compiler recognises that there are shared strings here and saves memory.
@@ -286,9 +302,9 @@ long acceptNewValue(unsigned long minimum, unsigned long maximum) {
   long number;
   do { //Will always run at least once
     callback.check(); //Flash the leds
-    number = Serial.parseInt();
+    number = serialParseInt();
     switch(number) {
-      case 0: //Timed out
+      case SERIAL_INPUT_TIMEOUT_VALUE: //Timed out
         Serial.println(F("Timed out after 10 minutes waiting for response. Please try again."));
         //No break on purpose
       case -1: //Did not want to change value
@@ -350,4 +366,127 @@ bool confirmationDialog () {
   Serial.println(F("Returning to settings menu."));
   Serial.println();
   return false;
+}
+void printBusId() {
+  for(byte i = 0; i < 3; i++) {
+    Serial.print(busId[i]);
+    Serial.print('.');
+  }
+  Serial.println(busId[3]); //No dot afterwards
+}
+long serialParseInt() { //A slightly improved version of parseint that accepts returns a negative number instead of 0 on timeout.
+  char charBuffer[SERIAL_INPUT_MAX_DIGITS+1]; //For 10 digit number
+  byte charCount = 0; // = Serial.peek();
+  unsigned long startTime = millis();
+  long number = 0;
+  bool isNegative = false;
+  //Wait until there is something
+  //Serial.print(F("\tAbout to clear buffer"));
+  /*while(!isDigit(charCount) && charCount != '-' && charCount != -1 && millis() - startTime <= SERIAL_TIMEOUT) { //Negative sign and negative one which means nothing to read
+    if(Serial.available()) {
+      //Serial.print(F("WaitChar: "));
+      //Serial.println(charCount);
+      Serial.read(); //Remove the char as we don't care about it.
+      charCount = Serial.peek(); //Get the next digit
+    }
+  }*/
+  while(millis() - startTime <= SERIAL_TIMEOUT) {
+    if(Serial.available()) {
+      char currentChar = Serial.peek();
+      if(currentChar >= '0' && currentChar <= '9') {
+        //Serial.print(F("Received "));
+        //Serial.print(currentChar);
+        //Serial.println(F(". Proceeding."));
+        break;
+      } else if(currentChar == '-') {
+        //Serial.println(F("Got NEGATIVE!"));
+        Serial.read(); //Clear the minus sign
+        isNegative = true;
+        break;
+      } else {
+        char tempChar = Serial.read(); //Not wanted remove it.
+        //Serial.print(F("Removed "));
+        //Serial.println(tempChar);
+      }
+      
+    }
+  }
+  //Serial.println(F("\tAbout to receive"));
+  //Get the something
+  while(millis() - startTime <= SERIAL_TIMEOUT) {
+    if(Serial.available()) {
+      //Serial.print(F("\tGot "));
+      charBuffer[charCount] = Serial.read();
+      //Serial.println(charBuffer[charCount]);
+      if((charBuffer[charCount] >= '0' && charBuffer[charCount] <= '9') && (charCount < SERIAL_INPUT_MAX_DIGITS)) { //The negative must be the first char received
+        //Accepted value
+        charCount++; //Get ready for the next
+        //Serial.print(F("Charcount: "));
+        //Serial.println(charCount);
+      } else {
+        //Give up. charCount will hold the number of digits.
+        break;
+      }
+    }
+  }
+  //Serial.print(F("Processing. There are "));
+  //Serial.print(charCount);
+  //Serial.print(F(" chars in the buffer. They are: \""));
+  for(byte a = 0; a < charCount; a++) {
+    //Serial.print(charBuffer[a]);
+  }
+  //Serial.println(F("\"."));
+  if(millis() - startTime > SERIAL_TIMEOUT) {
+    number = SERIAL_INPUT_TIMEOUT_VALUE;
+    //Serial.println(F("Timed out"));
+    return number;
+  }
+  char maxChars[] = {'2','1','4','7','4','8','3','6','4','7'}; //Max size of long: 2,147,483,647
+  bool isAtMax = true;
+  //Serial.println(charCount);
+  for(byte i = 0; i < charCount; i++) {
+    //Serial.print(F("Loop: "));
+    //Serial.print(i);
+    //Serial.print(F("\tChar: "));
+    //Serial.print(charBuffer[i]);
+    //Serial.print(F("\tisAtMax: "));
+    //Serial.print(isAtMax);
+    //Serial.print(F("\tNumber so far: "));
+    //Serial.println(number);
+    if(charCount >= SERIAL_INPUT_MAX_DIGITS) { //Don't want to overflow
+      if(charBuffer[i] >= maxChars[i] && isAtMax) {
+        charBuffer[i] = maxChars[i];
+        //Serial.print(F("Char is too big! Set to "));
+        //Serial.println(maxChars[i]);
+      } else {
+        //Serial.println(F("isAtMax is now false."));
+        isAtMax = false;
+      }
+    } else {
+      isAtMax = false;
+    }
+    number+= (charBuffer[i] - '0') * intPosPow(10,charCount-i-1); //Add that digit to the number  digit*10^pos
+  }
+  //Serial.print(F("Is negative: "));
+  //Serial.println(isNegative);
+  //Serial.println(F("Done processing"));
+  if(isNegative) {
+    number*= -1; //Make the number negative;
+    //Serial.println(F("Number is now negative"));
+  }
+  //Serial.print(F("Number is: "));
+  //Serial.println(number);
+  return number;
+}
+
+long intPosPow(byte base, byte power) {
+  long number = base;
+  if(power == 0) {
+    number = 1;
+  } else if (power > 1) { //power >1
+    for(byte i = 1; i < power; i++) {
+      number *= base; //Square the number
+    }
+  }
+  return number;
 }

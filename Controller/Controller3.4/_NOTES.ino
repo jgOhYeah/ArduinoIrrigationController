@@ -21,9 +21,13 @@ POSSIBLE DOWN THE TRACK:
 
  LoRaWAN inputs from tractor and sensors in paddock to shut bays
 
- Started to adapt to 40 by 2 lcd, but not finished - cursor on main screen - pos 11 needs to be replaced with LCD_WIDTH-5
- The settings menu select bay is on the wron line. THE CLOCK does not update automatically - callbackLibrary!!!
+ Started to adapt to 40 by 2 lcd, but not finished - Centre ERROR title, menu on one line?
 
+The all the same functionality does not work - offset for adding legend for side of screen?
 
+Turn off LED_BUILTIN
+
+NEW MENUs - System info - voltage... and wireless, Sensor and channel level info
+MERGE EEPROM SCREENS TOGETHER FOR LARGE DISPLAYS
  
  */

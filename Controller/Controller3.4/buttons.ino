@@ -110,14 +110,14 @@ void mainButtons() {
   if(leftButton.checkButton()) {
     //stuff
     //Serial.println(F("Left button pressed"));
-    switch(cursorPos) {
+    switch(cursorPos) { //Left most enabled bay
       //Loop back to more button
-      case FIRST_BAY_INDEX:
+      case LCD_LEGEND_LEFT_OFFSET + FIRST_BAY_INDEX:
         cursorPos = LCD_WIDTH-5;
         break;
       //Skip a few to get back to selected
-      case LCD_WIDTH-5:
-        cursorPos = NUMBER_OF_BAYS;
+      case LCD_WIDTH-5: //More button
+        cursorPos = LCD_LEGEND_LEFT_OFFSET + NUMBER_OF_BAYS; //All button
         break;
       default:
         cursorPos--;
@@ -131,10 +131,10 @@ void mainButtons() {
     switch(cursorPos) {
       //Loop back to more button
       case LCD_WIDTH-5:
-        cursorPos = FIRST_BAY_INDEX;
+        cursorPos = LCD_LEGEND_LEFT_OFFSET + FIRST_BAY_INDEX;
         break;
       //Skip a few to get back to selected
-      case NUMBER_OF_BAYS:
+      case LCD_LEGEND_LEFT_OFFSET+NUMBER_OF_BAYS:
         cursorPos = LCD_WIDTH-5;
         break;
       default:
@@ -146,11 +146,11 @@ void mainButtons() {
   if(selectButton.checkButton()) {
     //stuff
     //Serial.println("Select button pressed");
-    if(cursorPos == LCD_WIDTH-5) {
+    if(cursorPos == LCD_WIDTH-5) { //More
       //Call the menu screen if on the menu button
       changeScreen(LCD_MENU,LCD_MAIN);
       //Master Setting
-    } else if (cursorPos == NUMBER_OF_BAYS) { //On the change all bays at once button
+    } else if (cursorPos == LCD_LEGEND_LEFT_OFFSET+NUMBER_OF_BAYS) { //On the change all bays at once button
       byte masterStatus = STATE_SHUT;
       //Serial.println("All the same: " + allTheSame);
       if(allTheSame) {
@@ -168,43 +168,54 @@ void mainButtons() {
       charsToSend[2] = char(0); //Null terminate the array just in cse something attempts to use it as a string.
       sendToAll(charsToSend,2);
       //bus.update();
-      lcd.setCursor(FIRST_BAY_INDEX,1);
-      byte bayOptionsChar = byte(bayOptions[masterStatus]);
+      lcd.setCursor(LCD_LEGEND_LEFT_OFFSET+FIRST_BAY_INDEX,1);
+      byte bayOptionsChar = byte(bayOptions[masterStatus]); //byte if soecial char in spot 0.
       for(byte i=FIRST_BAY_INDEX; i < NUMBER_OF_BAYS; i++) {
         bayStatus[i] = masterStatus;
         lcd.write(bayOptionsChar);
       }
+#ifdef LCD_DYNAMIC_ALL_BAYS_BTN
+      lcd.write(bayOptionsChar); //All bays
+#endif
       lcd.setCursor(cursorPos,1);
       allTheSame = true;
     } else { //Change the state of an individual bay.
-      if(bayStatus[cursorPos] >= STATE_OPEN) {
-        bayStatus[cursorPos] = STATE_SHUT;
+      if(bayStatus[cursorPos-LCD_LEGEND_LEFT_OFFSET] >= STATE_OPEN) {
+        bayStatus[cursorPos-LCD_LEGEND_LEFT_OFFSET] = STATE_SHUT;
       } else {
-        bayStatus[cursorPos]++;
+        bayStatus[cursorPos-LCD_LEGEND_LEFT_OFFSET]++;
       }
       //char charsToSend[3];
       //char charsToSend[3]; //For some reason this cannot be a local variable.
       charsToSend[0] = CMD_SET_STATUS;
-      charsToSend[1] = bayStatus[cursorPos]; //Prepare the data
+      charsToSend[1] = bayStatus[cursorPos-LCD_LEGEND_LEFT_OFFSET]; //Prepare the data
       charsToSend[2] = char(0);
-      bus.send(cursorPos+FIRST_BAY_ADDRESS,charsToSend,2); //Send the data
+      bus.send(cursorPos+FIRST_BAY_ADDRESS-LCD_LEGEND_LEFT_OFFSET,charsToSend,2); //Send the data
       bus.update();
       //Send the command to the bay
       //if(!sendBayCommand(cursorPos,bayStatus[cursorPos])) return;
       //byte error = serialSuccess; //serialCom.sendCommandWithCallbacks(cursorPos,bayStatus[cursorPos],CMD_OVERWRITE_STATUS, enableLineWait, callbackTimeout);
       //Update the lcd.
-      lcd.write(byte(bayOptions[bayStatus[cursorPos]]));
-      lcd.setCursor(cursorPos,1);
+      lcd.write(byte(bayOptions[bayStatus[cursorPos-LCD_LEGEND_LEFT_OFFSET]]));
       //Check if still all the same
       allTheSame = true;
       if(bayStatus[FIRST_BAY_INDEX] == STATE_UNKOWN || bayStatus[FIRST_BAY_INDEX] == STATE_NOT_PRESENT) {
         allTheSame = false;
       }
-      for(byte i = FIRST_BAY_INDEX; i < NUMBER_OF_BAYS; i++) {
+      for(byte i = FIRST_BAY_INDEX; i < NUMBER_OF_BAYS && allTheSame; i++) {
         if(bayStatus[i] != bayStatus[FIRST_BAY_INDEX]) {
           allTheSame = false;
+          //break; //speed things up - part of above if statement - will always be done once
         }
       }
+#ifdef LCD_DYNAMIC_ALL_BAYS_BTN
+      lcd.setCursor(LCD_LEGEND_LEFT_OFFSET + NUMBER_OF_BAYS,1); //All bays button
+      if(allTheSame) { //Update theset all button
+        lcd.write(byte(bayOptions[bayStatus[FIRST_BAY_INDEX]])); //Write it
+      } else{
+        lcd.write(LCD_ALL_BAYS_DEFAULT_BTN);
+      }
+#endif
       lcd.setCursor(cursorPos,1);
     }
   }
