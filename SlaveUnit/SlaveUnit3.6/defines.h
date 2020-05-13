@@ -2,8 +2,12 @@
 #define SOFTWARE_VERSION " V3.6.1"
 #define MASTER_ID 255
 byte myId; //44 is bay 5, 45 is bay 6... 40 is bay 1
-uint8_t busId[4]; // = DEFAULT_PJON_BUS_ID;
-//#define DEFAULT_BAUD_RATE 9600 //Default baud rate to CMD_RESET the value stored in eeprom to.
+uint8_t busId[4] = PJON_BUS_ID;
+//#define DEFAULT_BAUD_RATE 9600 //Default baud rate to reset the value stored in eeprom to.
+//Stuff to generate strings from #define values
+#define XSTR(a) STR(a)
+#define STR(a) #a
+#define BAUD_RATE_STRING STR(DEFAULT_BAUD_RATE)
 //#define ledFlashSpeed 500
 #define LONG_PRESS_TIME 5000
 #define SERIAL_TIMEOUT 600000 //11 minutes
@@ -17,6 +21,7 @@ char bayStatus = STATE_UNKOWN;
 #define MAX_BAY_TIME 43383508 //(2^32-1)/99 is the largest number you can have before it possibly overflows
 #define MIN_SERIAL_BAUD 50
 #define MAX_SERIAL_BAUD 2000000
+
 byte halfwayPos; //25 Percent from the bottom
 unsigned long downTravelSpeed; //Default 26000
 unsigned long upTravelSpeed; //Default 24000
@@ -35,8 +40,8 @@ unsigned long timeAtOpen = 0;
 #define EEPROM_DOWN_TRAVEL_SPEED 2 //4 bytes
 #define EEPROM_UP_TRAVEL_SPEED 6 //4 bytes
 #define EEPROM_SERIAL_BAUD 10 //4 bytes
-#define EEPROM_BUS_ID 14 //4 bytes (each is a separate number though)
-#define EEPROM_FIRST_START_UP //1 byte - set to a random number (B10011001) if the slave has started up before, otherwise burn the default values into the other eeprom settings and set this to this number - factory reset
+//#define EEPROM_BUS_ID 14 //4 bytes (each is a separate number though)
+#define EEPROM_FIRST_START_UP 14//1 byte - set to a random number (B10011001) if the slave has started up before, otherwise burn the default values into the other eeprom settings and set this to this number - factory reset
 
 
 //Leds
@@ -69,8 +74,6 @@ bool isUndervoltage = false;
  *   10 111 111 = Slow flash, All LEDs starting on, all LEDs flashing.
  *   11 111 111 = Chasing - All LEDs involved.
 */
-
-#define ALL_LEDS(a) digitalWrite(PIN_UP_LED,a); digitalWrite(PIN_DOWN_LED,a); digitalWrite(PIN_HALF_LED,a)
 
 //Debugging macros to only enable debugging certain parts if debug is defined.
 #if defined(DEBUG_CALLBACK_LIBRARY_ENABLE) && defined(DEBUG_ENABLE) //Used for the callbacks library to send serial data.

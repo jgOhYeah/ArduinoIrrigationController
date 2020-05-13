@@ -36,10 +36,11 @@
 #define NONEXISTANT_CALLBACK 254
 
 //Shared PJON settings/ default values
-#define DEFAULT_PJON_BUS_ID {0,0,1,73} //An official bus id for rs485 in Northern Victoria, registered 15/01/2018
+#define PJON_BUS_ID {0,0,1,73} //An official bus id for rs485 in Northern Victoria, registered 15/01/2018
 #define DEFAULT_ADDRESS 40 //The default address of the slave
 #define DEFAULT_UP_TIME 24000 //These defaults are offone of the inital batch of linear actuators running off a 12v switchmode power supply - will not be right for other ones
 #define DEFAULT_DOWN_TIME 23700
 #define DEFAULT_HALF_POS 50
+#define DEFAULT_BAUD_RATE 38400 //Default baud rate to reset the value stored in eeprom to.
 #define RESET_SETTINGS_EEPROM B10011001 //Random number Change this to force the slave to reset all eeprom to the default when it starts up for the first time after programming. - If the arduino is new, the value will probably be 255
 

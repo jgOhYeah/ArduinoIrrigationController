@@ -1,7 +1,6 @@
 //Settings to be edited before uploading
 
 //Debugging
-#define DEFAULT_BAUD_RATE 9600 //Default baud rate to CMD_RESET the value stored in eeprom to.
 //Debug settings
 #define DEBUG_ENABLE //Enable debugging. The other debugging features will only be active if this is defined.
 
